@@ -1,8 +1,20 @@
-import 'package:assignment1/models/clubs.dart';
-import 'package:assignment1/models/messages.dart';
-import 'package:assignment1/models/posts.dart';
-import 'package:assignment1/models/users.dart';
+import 'package:assignment1/models/stores/clubs.dart';
+import 'package:assignment1/models/stores/messages.dart';
+import 'package:assignment1/models/stores/posts.dart';
+import 'package:assignment1/models/stores/users.dart';
 import 'package:hive/hive.dart';
+
+export 'package:assignment1/models/entities/entity.dart';
+export 'package:assignment1/models/entities/clubs.dart';
+export 'package:assignment1/models/entities/users.dart';
+export 'package:assignment1/models/entities/posts.dart';
+export 'package:assignment1/models/entities/messages.dart';
+
+export 'package:assignment1/models/stores/store.dart';
+export 'package:assignment1/models/stores/clubs.dart';
+export 'package:assignment1/models/stores/users.dart';
+export 'package:assignment1/models/stores/posts.dart';
+export 'package:assignment1/models/stores/messages.dart';
 
 late ClubStore clubStore;
 late ClubMembershipStore clubMembershipStore;
@@ -71,4 +83,3 @@ Future<void> initializeStores() async {
   messageReactionStore = MessageReactionStore();
   await messageReactionStore.loadDummy();
 }
-
