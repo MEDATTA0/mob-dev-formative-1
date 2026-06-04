@@ -7,6 +7,7 @@ late ClubStore clubStore;
 late ClubMembershipStore clubMembershipStore;
 
 late UserStore userStore;
+late UserConnectionStore userConnectionStore;
 
 late PostStore postStore;
 late RSVPStore rsvpStore;
@@ -16,35 +17,43 @@ late NotificationStore notificationStore;
 late ChatStore chatStore;
 late MessageStore messageStore;
 late ChatParticipantStore chatParticipantStore;
+late MessageReactionStore messageReactionStore;
 
-void initializeStores() {
+Future<void> initializeStores() async {
   userStore = UserStore();
-  userStore.loadDummy();
+  await userStore.loadDummy();
+
+  userConnectionStore = UserConnectionStore();
+  await userConnectionStore.loadDummy();
 
   clubStore = ClubStore();
-  clubStore.loadDummy();
+  await clubStore.loadDummy();
 
   clubMembershipStore = ClubMembershipStore();
-  clubMembershipStore.loadDummy();
+  await clubMembershipStore.loadDummy();
 
   postStore = PostStore();
-  postStore.loadDummy();
+  await postStore.loadDummy();
 
   rsvpStore = RSVPStore();
-  rsvpStore.loadDummy();
+  await rsvpStore.loadDummy();
 
   savedPostStore = SavedPostStore();
-  savedPostStore.loadDummy();
+  await savedPostStore.loadDummy();
 
   notificationStore = NotificationStore();
-  notificationStore.loadDummy();
+  await notificationStore.loadDummy();
 
   chatStore = ChatStore();
-  chatStore.loadDummy();
+  await chatStore.loadDummy();
 
   messageStore = MessageStore();
-  messageStore.loadDummy();
+  await messageStore.loadDummy();
 
   chatParticipantStore = ChatParticipantStore();
-  chatParticipantStore.loadDummy();
+  await chatParticipantStore.loadDummy();
+
+  messageReactionStore = MessageReactionStore();
+  await messageReactionStore.loadDummy();
 }
+

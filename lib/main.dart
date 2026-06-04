@@ -2,9 +2,10 @@ import 'package:assignment1/models/index.dart';
 import 'package:assignment1/screens/home.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeStores();
   runApp(const MyApp());
-  initializeStores();
 }
 
 class MyApp extends StatelessWidget {
