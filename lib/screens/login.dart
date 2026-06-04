@@ -73,9 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextSpan(
                         text: 'ALU\n',
                         style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary, // Gold/Yellow
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 34,
                           fontWeight: FontWeight.bold,
                           height: 1.1,
@@ -104,9 +102,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Text(
                   'Connect. Collaborate. Lead together.',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(
-                      alpha: 0.6,
-                    ), // Muted grey
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
