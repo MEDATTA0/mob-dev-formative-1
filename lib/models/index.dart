@@ -2,6 +2,7 @@ import 'package:assignment1/models/clubs.dart';
 import 'package:assignment1/models/messages.dart';
 import 'package:assignment1/models/posts.dart';
 import 'package:assignment1/models/users.dart';
+import 'package:hive/hive.dart';
 
 late ClubStore clubStore;
 late ClubMembershipStore clubMembershipStore;
@@ -20,6 +21,20 @@ late ChatParticipantStore chatParticipantStore;
 late MessageReactionStore messageReactionStore;
 
 Future<void> initializeStores() async {
+  // Open Hive boxes
+  await Hive.openBox<Map>('users');
+  await Hive.openBox<Map>('user_connections');
+  await Hive.openBox<Map>('clubs');
+  await Hive.openBox<Map>('club_memberships');
+  await Hive.openBox<Map>('posts');
+  await Hive.openBox<Map>('rsvps');
+  await Hive.openBox<Map>('saved_posts');
+  await Hive.openBox<Map>('notifications');
+  await Hive.openBox<Map>('chats');
+  await Hive.openBox<Map>('messages');
+  await Hive.openBox<Map>('chat_participants');
+  await Hive.openBox<Map>('message_reactions');
+
   userStore = UserStore();
   await userStore.loadDummy();
 

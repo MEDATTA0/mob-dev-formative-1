@@ -1,52 +1,67 @@
 import 'package:assignment1/models/storage.dart';
-import 'package:assignment1/models/database_helper.dart';
 import 'package:collection/collection.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:hive/hive.dart';
 
 class ClubStore implements Store<Club> {
+  Box<Map> get _box => Hive.box<Map>('clubs');
+
   @override
   Future<Club> add(Club data) async {
-    final db = await DatabaseHelper.instance.database;
-    final id = await db.insert('clubs', data.toMap());
+    final map = data.toMap();
+    final id = await _box.add(map);
     data.id = id;
+    await _box.put(id, data.toMap());
     return data;
   }
 
   @override
   Future<void> delete(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    await db.delete('clubs', where: 'id = ?', whereArgs: [id]);
+    await _box.delete(id);
+
+    // Cascade deletes:
+    // Delete all ClubMemberships where clubId matches this club
+    final membershipBox = Hive.box<Map>('club_memberships');
+    final membershipIdsToDelete = membershipBox.keys.where((key) => membershipBox.get(key)?['clubId'] == id).toList();
+    for (var mId in membershipIdsToDelete) {
+      await membershipBox.delete(mId);
+    }
   }
 
   @override
   Future<List<Club>> findAll() async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('clubs');
-    return maps.map((map) => Club.fromMap(map)).toList();
+    final list = <Club>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null) {
+        list.add(Club.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
   Future<Club?> findById(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('clubs', where: 'id = ?', whereArgs: [id]);
-    if (maps.isNotEmpty) {
-      return Club.fromMap(maps.first);
+    final map = _box.get(id);
+    if (map != null) {
+      return Club.fromMap(Map<String, dynamic>.from(map));
     }
     return null;
   }
 
   Future<List<Club>> findByCampus(String campusId) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('clubs', where: 'campusId = ?', whereArgs: [campusId]);
-    return maps.map((map) => Club.fromMap(map)).toList();
+    final list = <Club>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null && map['campusId'] == campusId) {
+        list.add(Club.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
   Future<void> loadDummy() async {
-    final db = await DatabaseHelper.instance.database;
-    final countMaps = await db.rawQuery('SELECT COUNT(*) as count FROM clubs');
-    final count = Sqflite.firstIntValue(countMaps) ?? 0;
-    if (count > 0) return;
+    if (_box.isNotEmpty) return;
 
     await add(
       Club(
@@ -180,56 +195,73 @@ class ClubMembership extends Entity {
 }
 
 class ClubMembershipStore implements Store<ClubMembership> {
+  Box<Map> get _box => Hive.box<Map>('club_memberships');
+
   @override
   Future<ClubMembership> add(ClubMembership data) async {
-    final db = await DatabaseHelper.instance.database;
-    var existsMaps = await db.query(
-      'club_memberships',
-      where: 'userId = ? AND clubId = ?',
-      whereArgs: [data.userId, data.clubId],
-    );
-    if (existsMaps.isEmpty) {
-      final id = await db.insert('club_memberships', data.toMap());
+    final existingKey = _box.keys.firstWhereOrNull((key) {
+      final map = _box.get(key);
+      return map != null &&
+          map['userId'] == data.userId &&
+          map['clubId'] == data.clubId;
+    });
+
+    if (existingKey == null) {
+      final id = await _box.add(data.toMap());
       data.id = id;
+      await _box.put(id, data.toMap());
     } else {
-      data.id = existsMaps.first['id'] as int?;
+      data.id = existingKey as int;
     }
     return data;
   }
 
   @override
   Future<void> delete(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    await db.delete('club_memberships', where: 'id = ?', whereArgs: [id]);
+    await _box.delete(id);
   }
 
   @override
   Future<List<ClubMembership>> findAll() async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('club_memberships');
-    return maps.map((map) => ClubMembership.fromMap(map)).toList();
+    final list = <ClubMembership>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null) {
+        list.add(ClubMembership.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
   Future<ClubMembership?> findById(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('club_memberships', where: 'id = ?', whereArgs: [id]);
-    if (maps.isNotEmpty) {
-      return ClubMembership.fromMap(maps.first);
+    final map = _box.get(id);
+    if (map != null) {
+      return ClubMembership.fromMap(Map<String, dynamic>.from(map));
     }
     return null;
   }
 
   Future<List<ClubMembership>> findByUserId(int userId) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('club_memberships', where: 'userId = ?', whereArgs: [userId]);
-    return maps.map((map) => ClubMembership.fromMap(map)).toList();
+    final list = <ClubMembership>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null && map['userId'] == userId) {
+        list.add(ClubMembership.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   Future<List<ClubMembership>> findByClubId(int clubId) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('club_memberships', where: 'clubId = ?', whereArgs: [clubId]);
-    return maps.map((map) => ClubMembership.fromMap(map)).toList();
+    final list = <ClubMembership>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null && map['clubId'] == clubId) {
+        list.add(ClubMembership.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override

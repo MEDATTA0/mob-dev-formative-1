@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'package:assignment1/models/storage.dart';
-import 'package:assignment1/models/database_helper.dart';
 import 'package:collection/collection.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:hive/hive.dart';
 
 /// Represents an Event or Opportunity
 class Post extends Entity {
@@ -54,12 +52,12 @@ class Post extends Entity {
       'campusId': campusId,
       'category': category,
       'location': location,
-      'tags': jsonEncode(tags),
+      'tags': tags,
       'startTime': startTime?.toIso8601String(),
       'endTime': endTime?.toIso8601String(),
       'deadline': deadline?.toIso8601String(),
       'capacity': capacity,
-      'isPublished': isPublished ? 1 : 0,
+      'isPublished': isPublished,
     };
   }
 
@@ -76,12 +74,12 @@ class Post extends Entity {
       campusId: map['campusId'] as String,
       category: map['category'] as String,
       location: map['location'] as String,
-      tags: List<String>.from(jsonDecode(map['tags'] as String) as List),
+      tags: List<String>.from(map['tags'] as List),
       startTime: map['startTime'] != null ? DateTime.parse(map['startTime'] as String) : null,
       endTime: map['endTime'] != null ? DateTime.parse(map['endTime'] as String) : null,
       deadline: map['deadline'] != null ? DateTime.parse(map['deadline'] as String) : null,
       capacity: map['capacity'] as int?,
-      isPublished: (map['isPublished'] as int) == 1,
+      isPublished: map['isPublished'] as bool? ?? true,
     );
   }
 }
@@ -195,7 +193,7 @@ class AppNotification extends Entity {
       'title': title,
       'body': body,
       'relatedEntityId': relatedEntityId,
-      'isRead': isRead ? 1 : 0,
+      'isRead': isRead,
     };
   }
 
@@ -209,12 +207,14 @@ class AppNotification extends Entity {
       title: map['title'] as String,
       body: map['body'] as String,
       relatedEntityId: map['relatedEntityId'] as int?,
-      isRead: (map['isRead'] as int) == 1,
+      isRead: map['isRead'] as bool? ?? false,
     );
   }
 }
 
 class PostStore implements Store<Post> {
+  Box<Map> get _box => Hive.box<Map>('posts');
+
   @override
   Future<Post> add(Post data) async {
     if (data.type == PostType.event &&
@@ -224,53 +224,79 @@ class PostStore implements Store<Post> {
       throw ArgumentError('Event endTime must be after startTime.');
     }
 
-    final db = await DatabaseHelper.instance.database;
-    final id = await db.insert('posts', data.toMap());
+    final map = data.toMap();
+    final id = await _box.add(map);
     data.id = id;
+    await _box.put(id, data.toMap());
     return data;
   }
 
   @override
   Future<void> delete(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    await db.delete('posts', where: 'id = ?', whereArgs: [id]);
+    await _box.delete(id);
+
+    // Cascade deletes:
+    // 1. RSVPs for this post
+    final rsvpBox = Hive.box<Map>('rsvps');
+    final rsvpIdsToDelete = rsvpBox.keys.where((key) => rsvpBox.get(key)?['postId'] == id).toList();
+    for (var rId in rsvpIdsToDelete) {
+      await rsvpBox.delete(rId);
+    }
+
+    // 2. SavedPosts for this post
+    final savedBox = Hive.box<Map>('saved_posts');
+    final savedIdsToDelete = savedBox.keys.where((key) => savedBox.get(key)?['postId'] == id).toList();
+    for (var sId in savedIdsToDelete) {
+      await savedBox.delete(sId);
+    }
   }
 
   @override
   Future<List<Post>> findAll() async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('posts');
-    return maps.map((map) => Post.fromMap(map)).toList();
+    final list = <Post>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null) {
+        list.add(Post.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
   Future<Post?> findById(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('posts', where: 'id = ?', whereArgs: [id]);
-    if (maps.isNotEmpty) {
-      return Post.fromMap(maps.first);
+    final map = _box.get(id);
+    if (map != null) {
+      return Post.fromMap(Map<String, dynamic>.from(map));
     }
     return null;
   }
 
   Future<List<Post>> findByType(PostType type) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('posts', where: 'type = ?', whereArgs: [type.name]);
-    return maps.map((map) => Post.fromMap(map)).toList();
+    final list = <Post>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null && map['type'] == type.name) {
+        list.add(Post.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   Future<List<Post>> findByCampus(String campusId) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('posts', where: 'campusId = ?', whereArgs: [campusId]);
-    return maps.map((map) => Post.fromMap(map)).toList();
+    final list = <Post>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null && map['campusId'] == campusId) {
+        list.add(Post.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
   Future<void> loadDummy() async {
-    final db = await DatabaseHelper.instance.database;
-    final countMaps = await db.rawQuery('SELECT COUNT(*) as count FROM posts');
-    final count = Sqflite.firstIntValue(countMaps) ?? 0;
-    if (count > 0) return;
+    if (_box.isNotEmpty) return;
 
     await add(
       Post(
@@ -305,56 +331,73 @@ class PostStore implements Store<Post> {
 }
 
 class RSVPStore implements Store<RSVP> {
+  Box<Map> get _box => Hive.box<Map>('rsvps');
+
   @override
   Future<RSVP> add(RSVP data) async {
-    final db = await DatabaseHelper.instance.database;
-    var existsMaps = await db.query(
-      'rsvps',
-      where: 'userId = ? AND postId = ?',
-      whereArgs: [data.userId, data.postId],
-    );
-    if (existsMaps.isEmpty) {
-      final id = await db.insert('rsvps', data.toMap());
+    final existingKey = _box.keys.firstWhereOrNull((key) {
+      final map = _box.get(key);
+      return map != null &&
+          map['userId'] == data.userId &&
+          map['postId'] == data.postId;
+    });
+
+    if (existingKey == null) {
+      final id = await _box.add(data.toMap());
       data.id = id;
+      await _box.put(id, data.toMap());
     } else {
-      data.id = existsMaps.first['id'] as int?;
+      data.id = existingKey as int;
     }
     return data;
   }
 
   @override
   Future<void> delete(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    await db.delete('rsvps', where: 'id = ?', whereArgs: [id]);
+    await _box.delete(id);
   }
 
   @override
   Future<List<RSVP>> findAll() async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('rsvps');
-    return maps.map((map) => RSVP.fromMap(map)).toList();
+    final list = <RSVP>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null) {
+        list.add(RSVP.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
   Future<RSVP?> findById(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('rsvps', where: 'id = ?', whereArgs: [id]);
-    if (maps.isNotEmpty) {
-      return RSVP.fromMap(maps.first);
+    final map = _box.get(id);
+    if (map != null) {
+      return RSVP.fromMap(Map<String, dynamic>.from(map));
     }
     return null;
   }
 
   Future<List<RSVP>> findByUserId(int userId) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('rsvps', where: 'userId = ?', whereArgs: [userId]);
-    return maps.map((map) => RSVP.fromMap(map)).toList();
+    final list = <RSVP>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null && map['userId'] == userId) {
+        list.add(RSVP.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   Future<List<RSVP>> findByPostId(int postId) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('rsvps', where: 'postId = ?', whereArgs: [postId]);
-    return maps.map((map) => RSVP.fromMap(map)).toList();
+    final list = <RSVP>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null && map['postId'] == postId) {
+        list.add(RSVP.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
@@ -362,50 +405,62 @@ class RSVPStore implements Store<RSVP> {
 }
 
 class SavedPostStore implements Store<SavedPost> {
+  Box<Map> get _box => Hive.box<Map>('saved_posts');
+
   @override
   Future<SavedPost> add(SavedPost data) async {
-    final db = await DatabaseHelper.instance.database;
-    var existsMaps = await db.query(
-      'saved_posts',
-      where: 'userId = ? AND postId = ?',
-      whereArgs: [data.userId, data.postId],
-    );
-    if (existsMaps.isEmpty) {
-      final id = await db.insert('saved_posts', data.toMap());
+    final existingKey = _box.keys.firstWhereOrNull((key) {
+      final map = _box.get(key);
+      return map != null &&
+          map['userId'] == data.userId &&
+          map['postId'] == data.postId;
+    });
+
+    if (existingKey == null) {
+      final id = await _box.add(data.toMap());
       data.id = id;
+      await _box.put(id, data.toMap());
     } else {
-      data.id = existsMaps.first['id'] as int?;
+      data.id = existingKey as int;
     }
     return data;
   }
 
   @override
   Future<void> delete(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    await db.delete('saved_posts', where: 'id = ?', whereArgs: [id]);
+    await _box.delete(id);
   }
 
   @override
   Future<List<SavedPost>> findAll() async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('saved_posts');
-    return maps.map((map) => SavedPost.fromMap(map)).toList();
+    final list = <SavedPost>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null) {
+        list.add(SavedPost.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
   Future<SavedPost?> findById(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('saved_posts', where: 'id = ?', whereArgs: [id]);
-    if (maps.isNotEmpty) {
-      return SavedPost.fromMap(maps.first);
+    final map = _box.get(id);
+    if (map != null) {
+      return SavedPost.fromMap(Map<String, dynamic>.from(map));
     }
     return null;
   }
 
   Future<List<SavedPost>> findByUserId(int userId) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('saved_posts', where: 'userId = ?', whereArgs: [userId]);
-    return maps.map((map) => SavedPost.fromMap(map)).toList();
+    final list = <SavedPost>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null && map['userId'] == userId) {
+        list.add(SavedPost.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
@@ -413,41 +468,52 @@ class SavedPostStore implements Store<SavedPost> {
 }
 
 class NotificationStore implements Store<AppNotification> {
+  Box<Map> get _box => Hive.box<Map>('notifications');
+
   @override
   Future<AppNotification> add(AppNotification data) async {
-    final db = await DatabaseHelper.instance.database;
-    final id = await db.insert('notifications', data.toMap());
+    final map = data.toMap();
+    final id = await _box.add(map);
     data.id = id;
+    await _box.put(id, data.toMap());
     return data;
   }
 
   @override
   Future<void> delete(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    await db.delete('notifications', where: 'id = ?', whereArgs: [id]);
+    await _box.delete(id);
   }
 
   @override
   Future<List<AppNotification>> findAll() async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('notifications');
-    return maps.map((map) => AppNotification.fromMap(map)).toList();
+    final list = <AppNotification>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null) {
+        list.add(AppNotification.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
   Future<AppNotification?> findById(int id) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('notifications', where: 'id = ?', whereArgs: [id]);
-    if (maps.isNotEmpty) {
-      return AppNotification.fromMap(maps.first);
+    final map = _box.get(id);
+    if (map != null) {
+      return AppNotification.fromMap(Map<String, dynamic>.from(map));
     }
     return null;
   }
 
   Future<List<AppNotification>> findByUserId(int userId) async {
-    final db = await DatabaseHelper.instance.database;
-    final maps = await db.query('notifications', where: 'userId = ?', whereArgs: [userId]);
-    return maps.map((map) => AppNotification.fromMap(map)).toList();
+    final list = <AppNotification>[];
+    for (var key in _box.keys) {
+      final map = _box.get(key);
+      if (map != null && map['userId'] == userId) {
+        list.add(AppNotification.fromMap(Map<String, dynamic>.from(map)));
+      }
+    }
+    return list;
   }
 
   @override
