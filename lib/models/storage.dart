@@ -1,34 +1,28 @@
 // This class is an abstract that posts, users, etc., will implement
 class Entity {
-  static int _nextId = 1;
-  late int _id;
-  late DateTime _createdAt;
-  late DateTime _updatedAt;
+  int? id;
+  DateTime? createdAt;
+  DateTime? updatedAt;
 
-  Entity() {
-    _id = _nextId++;
-    _createdAt = DateTime.now();
-    _updatedAt = DateTime.now();
-  }
+  Entity({this.id, this.createdAt, this.updatedAt});
 
   int getId() {
-    return _id;
+    return id ?? -1;
   }
 
   DateTime getCreatedAt() {
-    return _createdAt;
+    return createdAt ?? DateTime.now();
   }
 
   DateTime getUpdatedAt() {
-    return _updatedAt;
+    return updatedAt ?? DateTime.now();
   }
 }
 
 abstract class Store<T extends Entity> {
-  void loadDummy();
-  T add(T data);
-  T? findById(int id);
-  void delete(int id);
-  // T update({int id});
-  List<T> findAll();
+  Future<void> loadDummy();
+  Future<T> add(T data);
+  Future<T?> findById(int id);
+  Future<void> delete(int id);
+  Future<List<T>> findAll();
 }
