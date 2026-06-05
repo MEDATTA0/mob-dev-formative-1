@@ -47,6 +47,8 @@ Future<void> initializeStores() async {
   await Hive.openBox<Map>('chat_participants');
   await Hive.openBox<Map>('message_reactions');
 
+
+
   userStore = UserStore();
   await userStore.loadDummy();
 
