@@ -38,8 +38,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         width: width,
         height: height,
         color: Colors.grey.shade200,
-        child: Icon(Icons.image_outlined,
-            color: Colors.grey.shade400, size: 32),
+        child: Icon(
+          Icons.image_outlined,
+          color: Colors.grey.shade400,
+          size: 32,
+        ),
       );
     }
 
@@ -50,7 +53,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         height: height,
         fit: fit,
         alignment: Alignment.topCenter,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           width: width,
           height: height,
           color: Colors.grey.shade200,
@@ -64,7 +67,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       height: height,
       fit: fit,
       alignment: Alignment.topCenter,
-      placeholder: (_, __) => Container(
+      placeholder: (_, _) => Container(
         width: width,
         height: height,
         color: Colors.grey.shade100,
@@ -75,12 +78,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           ),
         ),
       ),
-      errorWidget: (_, __, ___) => Container(
+      errorWidget: (_, _, _) => Container(
         width: width,
         height: height,
         color: Colors.grey.shade200,
-        child: Icon(Icons.image_outlined,
-            color: Colors.grey.shade400, size: 32),
+        child: Icon(
+          Icons.image_outlined,
+          color: Colors.grey.shade400,
+          size: 32,
+        ),
       ),
     );
   }
@@ -88,8 +94,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Future<void> _setStatus(String status) async {
     setState(() => _userStatus = status);
 
-    final RSVPStatus rsvpStatus =
-        status == 'Going' ? RSVPStatus.going : RSVPStatus.interested;
+    final RSVPStatus rsvpStatus = status == 'Going'
+        ? RSVPStatus.going
+        : RSVPStatus.interested;
 
     int userId = 1;
     try {
@@ -97,18 +104,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (users.isNotEmpty) userId = users.first.getId();
     } catch (_) {}
 
-    await rsvpStore.add(RSVP(
-      userId: userId,
-      postId: widget.post.getId(),
-      status: rsvpStatus,
-    ));
+    await rsvpStore.add(
+      RSVP(userId: userId, postId: widget.post.getId(), status: rsvpStatus),
+    );
 
     if (!mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => MyRsvpsScreen(initialTab: status),
-      ),
+      MaterialPageRoute(builder: (_) => MyRsvpsScreen(initialTab: status)),
     );
   }
 
@@ -208,30 +211,30 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         // Top bar
         SafeArea(
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withValues(alpha: 0.85),
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back,
-                        color: Color(0xFF0F1B2D)),
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Color(0xFF0F1B2D),
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withValues(alpha: 0.85),
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.sync_alt,
-                        color: Color(0xFF0F1B2D)),
+                    icon: const Icon(Icons.sync_alt, color: Color(0xFF0F1B2D)),
                     onPressed: () {},
                   ),
                 ),
@@ -244,28 +247,28 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildTags(Post post) {
-    final tagsToShow =
-        post.tags.isNotEmpty ? post.tags : [post.category];
+    final tagsToShow = post.tags.isNotEmpty ? post.tags : [post.category];
 
     return Wrap(
       spacing: 8,
       children: tagsToShow
-          .map((tag) => Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5A623).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+          .map(
+            (tag) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5A623).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                tag,
+                style: const TextStyle(
+                  color: Color(0xFFF5A623),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
-                child: Text(
-                  tag,
-                  style: const TextStyle(
-                    color: Color(0xFFF5A623),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ))
+              ),
+            ),
+          )
           .toList(),
     );
   }
@@ -292,8 +295,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               if (line2.isNotEmpty)
                 Text(
                   line2,
-                  style: TextStyle(
-                      color: Colors.grey.shade500, fontSize: 13),
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
                 ),
             ],
           ),
@@ -315,8 +317,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       future: rsvpStore.findByPostId(postId),
       builder: (context, snap) {
         final allRsvps = snap.data ?? [];
-        final goingCount =
-            allRsvps.where((r) => r.status == RSVPStatus.going).length;
+        final goingCount = allRsvps
+            .where((r) => r.status == RSVPStatus.going)
+            .length;
         final interestedCount = allRsvps
             .where((r) => r.status == RSVPStatus.interested)
             .length;
@@ -334,14 +337,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                            color: avatarColors[i], width: 2),
+                        border: Border.all(color: avatarColors[i], width: 2),
                       ),
                       child: CircleAvatar(
                         radius: 14,
                         backgroundColor: avatarColors[i],
-                        child: const Icon(Icons.person,
-                            color: Colors.white, size: 14),
+                        child: const Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -362,8 +367,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   ),
                   TextSpan(
                     text: '   $interestedCount interested',
-                    style: TextStyle(
-                        color: Colors.grey.shade500, fontSize: 13),
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
                   ),
                 ],
               ),
@@ -381,7 +385,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -433,9 +437,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 ),
               ),
               child: Text(
-                _userStatus == 'Interested'
-                    ? 'Interested ✓'
-                    : 'Interested',
+                _userStatus == 'Interested' ? 'Interested ✓' : 'Interested',
                 style: TextStyle(
                   color: _userStatus == 'Interested'
                       ? const Color(0xFFF5A623)

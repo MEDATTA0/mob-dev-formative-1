@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/screens/event_detail.dart';
 import 'package:assignment1/screens/rsvp.dart';
 import 'package:assignment1/screens/profile_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,11 +21,31 @@ class _HomeScreenState extends State<HomeScreen> {
   User? _currentUser;
 
   final List<Map<String, dynamic>> _categories = [
-    {'label': 'All', 'icon': Icons.grid_view_rounded, 'color': const Color(0xFFF5A623)},
-    {'label': 'Events', 'icon': Icons.calendar_today_outlined, 'color': const Color(0xFF6C63FF)},
-    {'label': 'Opportunities', 'icon': Icons.card_giftcard_outlined, 'color': const Color(0xFF2A9D6F)},
-    {'label': 'Clubs', 'icon': Icons.groups_outlined, 'color': const Color(0xFF2A9D6F)},
-    {'label': 'Academics', 'icon': Icons.school_outlined, 'color': const Color(0xFF3B82F6)},
+    {
+      'label': 'All',
+      'icon': Icons.grid_view_rounded,
+      'color': const Color(0xFFF5A623),
+    },
+    {
+      'label': 'Events',
+      'icon': Icons.calendar_today_outlined,
+      'color': const Color(0xFF6C63FF),
+    },
+    {
+      'label': 'Opportunities',
+      'icon': Icons.card_giftcard_outlined,
+      'color': const Color(0xFF2A9D6F),
+    },
+    {
+      'label': 'Clubs',
+      'icon': Icons.groups_outlined,
+      'color': const Color(0xFF2A9D6F),
+    },
+    {
+      'label': 'Academics',
+      'icon': Icons.school_outlined,
+      'color': const Color(0xFF3B82F6),
+    },
   ];
 
   @override
@@ -117,8 +137,11 @@ class _HomeScreenState extends State<HomeScreen> {
         width: width,
         height: height,
         color: placeholderColor,
-        child: Icon(Icons.image_outlined,
-            color: Colors.grey.shade400, size: 32),
+        child: Icon(
+          Icons.image_outlined,
+          color: Colors.grey.shade400,
+          size: 32,
+        ),
       );
     }
 
@@ -129,12 +152,15 @@ class _HomeScreenState extends State<HomeScreen> {
         height: height,
         fit: fit,
         alignment: Alignment.topCenter,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           width: width,
           height: height,
           color: placeholderColor,
-          child: Icon(Icons.image_outlined,
-              color: Colors.grey.shade400, size: 32),
+          child: Icon(
+            Icons.image_outlined,
+            color: Colors.grey.shade400,
+            size: 32,
+          ),
         ),
       );
     }
@@ -145,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
       height: height,
       fit: fit,
       alignment: Alignment.topCenter,
-      placeholder: (_, __) => Container(
+      placeholder: (_, _) => Container(
         width: width,
         height: height,
         color: placeholderColor,
@@ -156,20 +182,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      errorWidget: (_, __, ___) => Container(
+      errorWidget: (_, _, _) => Container(
         width: width,
         height: height,
         color: placeholderColor,
-        child: Icon(Icons.image_outlined,
-            color: Colors.grey.shade400, size: 32),
+        child: Icon(
+          Icons.image_outlined,
+          color: Colors.grey.shade400,
+          size: 32,
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final firstName =
-        _currentUser?.fullName.split(' ').first ?? 'there';
+    final firstName = _currentUser?.fullName.split(' ').first ?? 'there';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
@@ -204,10 +232,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 )
               else
-                ..._latestPosts.map((post) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildOpportunityCard(post),
-                    )),
+                ..._latestPosts.map(
+                  (post) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildOpportunityCard(post),
+                  ),
+                ),
               const SizedBox(height: 80),
             ],
           ),
@@ -275,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -289,8 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search opportunities, events, people...',
-                hintStyle:
-                    TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 14),
               ),
@@ -300,9 +329,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     _posts = _allPosts;
                   } else {
                     _posts = _allPosts
-                        .where((p) => p.title
-                            .toLowerCase()
-                            .contains(val.toLowerCase()))
+                        .where(
+                          (p) =>
+                              p.title.toLowerCase().contains(val.toLowerCase()),
+                        )
                         .toList();
                   }
                 });
@@ -320,13 +350,12 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
+        separatorBuilder: (_, _) => const SizedBox(width: 16),
         itemBuilder: (context, i) {
           final cat = _categories[i];
           final isSelected = _selectedCategory == cat['label'];
           return GestureDetector(
-            onTap: () =>
-                setState(() => _selectedCategory = cat['label']),
+            onTap: () => setState(() => _selectedCategory = cat['label']),
             child: Column(
               children: [
                 Container(
@@ -335,14 +364,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? (cat['color'] as Color)
-                        : (cat['color'] as Color).withOpacity(0.12),
+                        : (cat['color'] as Color).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     cat['icon'] as IconData,
-                    color: isSelected
-                        ? Colors.white
-                        : cat['color'] as Color,
+                    color: isSelected ? Colors.white : cat['color'] as Color,
                     size: 24,
                   ),
                 ),
@@ -351,9 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   cat['label'],
                   style: TextStyle(
                     fontSize: 11,
-                    fontWeight: isSelected
-                        ? FontWeight.w700
-                        : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     color: isSelected
                         ? const Color(0xFF0F1B2D)
                         : Colors.grey.shade500,
@@ -404,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha: 0.12),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -430,8 +455,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       begin: Alignment.centerRight,
                       end: Alignment.centerLeft,
                       colors: [
-                        Colors.black.withOpacity(0.1),
-                        Colors.black.withOpacity(0.75),
+                        Colors.black.withValues(alpha: 0.1),
+                        Colors.black.withValues(alpha: 0.75),
                       ],
                     ),
                   ),
@@ -447,17 +472,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       post.category,
                       style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500),
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       post.title,
                       style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -465,16 +492,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       '${_formatDate(post.startTime)} • ${post.location}',
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.75),
-                          fontSize: 12),
+                        color: Colors.white.withValues(alpha: 0.75),
+                        fontSize: 12,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       post.description,
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
-                          fontSize: 12,
-                          height: 1.4),
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 12,
+                        height: 1.4,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -486,7 +515,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         backgroundColor: const Color(0xFFF5A623),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 22, vertical: 10),
+                          horizontal: 22,
+                          vertical: 10,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -494,9 +525,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: const Text(
                         'View details',
                         style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ],
@@ -521,7 +553,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -534,13 +566,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 topLeft: Radius.circular(14),
                 bottomLeft: Radius.circular(14),
               ),
-              child: _buildImage(post.coverImageUrl,
-                  width: 80, height: 80),
+              child: _buildImage(post.coverImageUrl, width: 80, height: 80),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 12),
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -558,8 +591,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Icon(Icons.chevron_right,
-                            color: Colors.grey, size: 18),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey,
+                          size: 18,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 3),
@@ -568,19 +604,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           ? 'Apply by ${_formatDate(post.deadline)}'
                           : _formatDate(post.startTime),
                       style: TextStyle(
-                          color: Colors.grey.shade500, fontSize: 12),
+                        color: Colors.grey.shade500,
+                        fontSize: 12,
+                      ),
                     ),
                     Text(
                       post.location,
                       style: TextStyle(
-                          color: Colors.grey.shade400, fontSize: 12),
+                        color: Colors.grey.shade400,
+                        fontSize: 12,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 3),
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.12),
+                        color: color.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -608,7 +650,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -622,29 +664,32 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.grey.shade400,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle:
-            const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+        selectedLabelStyle: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
         unselectedLabelStyle: const TextStyle(fontSize: 11),
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home'),
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Explore'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.search), label: 'Explore'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle,
-                size: 40, color: Color(0xFFF5A623)),
+            icon: Icon(Icons.add_circle, size: 40, color: Color(0xFFF5A623)),
             label: '',
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble_outline),
-              activeIcon: Icon(Icons.chat_bubble),
-              label: 'Chats'),
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Chats',
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile'),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
     );
