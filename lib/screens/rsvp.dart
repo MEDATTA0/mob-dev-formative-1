@@ -3,23 +3,23 @@ import 'package:assignment1/models/index.dart';
 import 'package:intl/intl.dart';
 
 class MyRsvpsScreen extends StatefulWidget {
-  const MyRsvpsScreen({super.key});
+  final String initialTab;
+  const MyRsvpsScreen({super.key, this.initialTab = 'Going'});
 
   @override
   State<MyRsvpsScreen> createState() => _MyRsvpsScreenState();
 }
 
 class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
-  String _selectedTab = 'Going';
+  late String _selectedTab;
   List<RSVP> _allUserRsvps = [];
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
-    });
+    _selectedTab = widget.initialTab;
+    _loadData();
   }
 
   Future<void> _loadData() async {

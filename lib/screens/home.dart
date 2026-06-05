@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:assignment1/models/index.dart';
+import 'package:assignment1/screens/event_detail.dart';
+import 'package:assignment1/screens/rsvp.dart';
+import 'package:assignment1/screens/profile_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   String _selectedCategory = 'All';
+  List<Post> _allPosts = [];
   List<Post> _posts = [];
   User? _currentUser;
 
@@ -34,9 +39,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final allUsers = await userStore.findAll();
     if (!mounted) return;
     setState(() {
-      _posts = allPosts.where((p) => p.isPublished).toList();
+      _allPosts = allPosts.where((p) => p.isPublished).toList();
+      _posts = _allPosts;
       _currentUser = allUsers.isNotEmpty ? allUsers.first : null;
     });
+  }
+
+  void _navigateTo(Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
   List<Post> get _filteredPosts {
@@ -50,14 +60,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return _posts.where((p) => p.category == _selectedCategory).toList();
   }
 
-  Post? get _featuredPost => _posts.isNotEmpty ? _posts.first : null;
+  Post? get _featuredPost =>
+      _filteredPosts.isNotEmpty ? _filteredPosts.first : null;
 
   List<Post> get _latestPosts {
     final all = _filteredPosts;
-    if (_featuredPost != null && all.length > 1) {
-      return all.skip(1).toList();
-    }
-    return all;
+    if (all.length > 1) return all.skip(1).toList();
+    return [];
   }
 
   String _formatDate(DateTime? dt) {
@@ -72,17 +81,95 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String _tagLabel(Post post) {
-    switch (post.type) {
-      case PostType.event:
-        return 'Event';
-      case PostType.opportunity:
-        return 'Opportunity';
+    return post.type == PostType.event ? 'Event' : 'Opportunity';
+  }
+
+  void _onBottomNavTap(int index) {
+    switch (index) {
+      case 0:
+        setState(() => _currentIndex = 0);
+        break;
+      case 1:
+        setState(() => _currentIndex = 1);
+        break;
+      case 2:
+        break;
+      case 3:
+        setState(() => _currentIndex = 3);
+        break;
+      case 4:
+        setState(() => _currentIndex = 4);
+        _navigateTo(const ProfilePage());
+        break;
     }
+  }
+
+  // ── Image helper ──────────────────────────────────────────
+  Widget _buildImage(
+    String? url, {
+    double? width,
+    double? height,
+    BoxFit fit = BoxFit.cover,
+    Color placeholderColor = const Color(0xFFE8EAF0),
+  }) {
+    if (url == null || url.isEmpty) {
+      return Container(
+        width: width,
+        height: height,
+        color: placeholderColor,
+        child: Icon(Icons.image_outlined,
+            color: Colors.grey.shade400, size: 32),
+      );
+    }
+
+    if (url.startsWith('assets/')) {
+      return Image.asset(
+        url,
+        width: width,
+        height: height,
+        fit: fit,
+        alignment: Alignment.topCenter,
+        errorBuilder: (_, __, ___) => Container(
+          width: width,
+          height: height,
+          color: placeholderColor,
+          child: Icon(Icons.image_outlined,
+              color: Colors.grey.shade400, size: 32),
+        ),
+      );
+    }
+
+    return CachedNetworkImage(
+      imageUrl: url,
+      width: width,
+      height: height,
+      fit: fit,
+      alignment: Alignment.topCenter,
+      placeholder: (_, __) => Container(
+        width: width,
+        height: height,
+        color: placeholderColor,
+        child: const Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Color(0xFFF5A623),
+          ),
+        ),
+      ),
+      errorWidget: (_, __, ___) => Container(
+        width: width,
+        height: height,
+        color: placeholderColor,
+        child: Icon(Icons.image_outlined,
+            color: Colors.grey.shade400, size: 32),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final firstName = _currentUser?.fullName.split(' ').first ?? 'there';
+    final firstName =
+        _currentUser?.fullName.split(' ').first ?? 'there';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
@@ -156,22 +243,25 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: Colors.grey.shade200,
-          backgroundImage: _currentUser?.profilePictureUrl != null
-              ? NetworkImage(_currentUser!.profilePictureUrl!)
-              : null,
-          child: _currentUser?.profilePictureUrl == null
-              ? Text(
-                  firstName[0].toUpperCase(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFF5A623),
-                    fontSize: 18,
-                  ),
-                )
-              : null,
+        GestureDetector(
+          onTap: () => _navigateTo(const ProfilePage()),
+          child: CircleAvatar(
+            radius: 24,
+            backgroundColor: Colors.grey.shade200,
+            backgroundImage: _currentUser?.profilePictureUrl != null
+                ? NetworkImage(_currentUser!.profilePictureUrl!)
+                : null,
+            child: _currentUser?.profilePictureUrl == null
+                ? Text(
+                    firstName[0].toUpperCase(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFF5A623),
+                      fontSize: 18,
+                    ),
+                  )
+                : null,
+          ),
         ),
       ],
     );
@@ -199,12 +289,23 @@ class _HomeScreenState extends State<HomeScreen> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search opportunities, events, people...',
-                hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                hintStyle:
+                    TextStyle(color: Colors.grey.shade400, fontSize: 13),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 14),
               ),
               onChanged: (val) {
-                // wire up search later
+                setState(() {
+                  if (val.isEmpty) {
+                    _posts = _allPosts;
+                  } else {
+                    _posts = _allPosts
+                        .where((p) => p.title
+                            .toLowerCase()
+                            .contains(val.toLowerCase()))
+                        .toList();
+                  }
+                });
               },
             ),
           ),
@@ -224,7 +325,8 @@ class _HomeScreenState extends State<HomeScreen> {
           final cat = _categories[i];
           final isSelected = _selectedCategory == cat['label'];
           return GestureDetector(
-            onTap: () => setState(() => _selectedCategory = cat['label']),
+            onTap: () =>
+                setState(() => _selectedCategory = cat['label']),
             child: Column(
               children: [
                 Container(
@@ -238,7 +340,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: Icon(
                     cat['icon'] as IconData,
-                    color: isSelected ? Colors.white : cat['color'] as Color,
+                    color: isSelected
+                        ? Colors.white
+                        : cat['color'] as Color,
                     size: 24,
                   ),
                 ),
@@ -247,7 +351,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   cat['label'],
                   style: TextStyle(
                     fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: isSelected
+                        ? FontWeight.w700
+                        : FontWeight.w500,
                     color: isSelected
                         ? const Color(0xFF0F1B2D)
                         : Colors.grey.shade500,
@@ -274,7 +380,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: () => _navigateTo(const MyRsvpsScreen()),
           child: const Text(
             'See all',
             style: TextStyle(
@@ -289,123 +395,115 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildFeaturedCard(Post post) {
-    return Container(
-      width: double.infinity,
-      height: 210,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            // Background
-            Positioned.fill(
-              child: post.coverImageUrl != null
-                  ? Image.network(
-                      post.coverImageUrl!,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.topCenter,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFF1A2B3C),
-                      ),
-                    )
-                  : Container(color: const Color(0xFF1A2B3C)),
+    return GestureDetector(
+      onTap: () => _navigateTo(EventDetailScreen(post: post)),
+      child: Container(
+        width: double.infinity,
+        height: 210,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
-            // Gradient overlay
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerRight,
-                    end: Alignment.centerLeft,
-                    colors: [
-                      Colors.black.withOpacity(0.1),
-                      Colors.black.withOpacity(0.75),
-                    ],
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            children: [
+              // Background image
+              Positioned.fill(
+                child: _buildImage(
+                  post.coverImageUrl,
+                  fit: BoxFit.cover,
+                  placeholderColor: const Color(0xFF1A2B3C),
+                ),
+              ),
+              // Gradient overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerRight,
+                      end: Alignment.centerLeft,
+                      colors: [
+                        Colors.black.withOpacity(0.1),
+                        Colors.black.withOpacity(0.75),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    post.category,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      post.category,
+                      style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    post.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 2),
+                    Text(
+                      post.title,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${_formatDate(post.startTime)} • ${post.location}',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.75),
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    post.description,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
-                      fontSize: 12,
-                      height: 1.4,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Navigate to event detail
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF5A623),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 22, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                    child: const Text(
-                      'View details',
+                    const SizedBox(height: 4),
+                    Text(
+                      '${_formatDate(post.startTime)} • ${post.location}',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                          color: Colors.white.withOpacity(0.75),
+                          fontSize: 12),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      post.description,
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 12,
+                          height: 1.4),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () =>
+                          _navigateTo(EventDetailScreen(post: post)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF5A623),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 22, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      child: const Text(
+                        'View details',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -415,105 +513,92 @@ class _HomeScreenState extends State<HomeScreen> {
     final color = _tagColor(post);
     final tag = _tagLabel(post);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Image
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(14),
-              bottomLeft: Radius.circular(14),
+    return GestureDetector(
+      onTap: () => _navigateTo(EventDetailScreen(post: post)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: post.coverImageUrl != null
-                ? Image.network(
-                    post.coverImageUrl!,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
-                    errorBuilder: (_, __, ___) => _imagePlaceholder(color),
-                  )
-                : _imagePlaceholder(color),
-          ),
-          // Content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          post.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            color: Color(0xFF0F1B2D),
+          ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(14),
+                bottomLeft: Radius.circular(14),
+              ),
+              child: _buildImage(post.coverImageUrl,
+                  width: 80, height: 80),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            post.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: Color(0xFF0F1B2D),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Icon(Icons.chevron_right,
+                            color: Colors.grey, size: 18),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      post.deadline != null
+                          ? 'Apply by ${_formatDate(post.deadline)}'
+                          : _formatDate(post.startTime),
+                      style: TextStyle(
+                          color: Colors.grey.shade500, fontSize: 12),
+                    ),
+                    Text(
+                      post.location,
+                      style: TextStyle(
+                          color: Colors.grey.shade400, fontSize: 12),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        tag,
+                        style: TextStyle(
+                          color: color,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const Icon(Icons.chevron_right,
-                          color: Colors.grey, size: 18),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    post.deadline != null
-                        ? 'Apply by ${_formatDate(post.deadline)}'
-                        : _formatDate(post.startTime),
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-                  ),
-                  Text(
-                    post.location,
-                    style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
-                      tag,
-                      style: TextStyle(
-                        color: color,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
-  }
-
-  Widget _imagePlaceholder(Color color) {
-    return Container(
-      width: 80,
-      height: 80,
-      color: color.withOpacity(0.1),
-      child: Icon(Icons.event_outlined, color: color.withOpacity(0.4), size: 28),
     );
   }
 
@@ -531,7 +616,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        onTap: _onBottomNavTap,
         backgroundColor: Colors.white,
         selectedItemColor: const Color(0xFFF5A623),
         unselectedItemColor: Colors.grey.shade400,
@@ -542,28 +627,24 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedLabelStyle: const TextStyle(fontSize: 11),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: 'Home'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Explore',
-          ),
+              icon: Icon(Icons.search), label: 'Explore'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle, size: 40, color: Color(0xFFF5A623)),
+            icon: Icon(Icons.add_circle,
+                size: 40, color: Color(0xFFF5A623)),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            activeIcon: Icon(Icons.chat_bubble),
-            label: 'Chats',
-          ),
+              icon: Icon(Icons.chat_bubble_outline),
+              activeIcon: Icon(Icons.chat_bubble),
+              label: 'Chats'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person),
+              label: 'Profile'),
         ],
       ),
     );

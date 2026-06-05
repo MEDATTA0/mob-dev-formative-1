@@ -2,8 +2,6 @@ import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/screens/home.dart';
 import 'package:assignment1/screens/login.dart';
-import 'package:assignment1/screens/profile_page.dart';
-import 'package:assignment1/screens/event_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -83,7 +81,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.darkBackground,
       ),
 
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
 
       initialRoute: "/",
       routes: {
