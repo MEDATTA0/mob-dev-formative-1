@@ -3,18 +3,26 @@ import 'package:flutter/material.dart';
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  // ALU Theme Colors
+  static const Color primaryBg = Color(0xFF050A1F);
+  static const Color cardBg = Color(0xFF1A243B);
+  static const Color accentGold = Color(0xFFF4A300);
+  static const Color textWhite = Colors.white;
+  static const Color secondaryText = Color(0xFFB0B8C4);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: primaryBg,
 
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: primaryBg,
         elevation: 0,
+        centerTitle: true,
         title: const Text(
           "Profile",
           style: TextStyle(
-            color: Colors.black,
+            color: textWhite,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -23,7 +31,7 @@ class ProfilePage extends StatelessWidget {
             onPressed: () {},
             icon: const Icon(
               Icons.settings,
-              color: Colors.black,
+              color: accentGold,
             ),
           ),
         ],
@@ -32,13 +40,23 @@ class ProfilePage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             const SizedBox(height: 20),
 
-            const CircleAvatar(
-              radius: 55,
-              backgroundImage: NetworkImage(
-                "https://picsum.photos/200",
+            // Profile Picture
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: accentGold,
+                  width: 3,
+                ),
+              ),
+              child: const CircleAvatar(
+                radius: 55,
+                backgroundImage: NetworkImage(
+                  "https://picsum.photos/200",
+                ),
               ),
             ),
 
@@ -49,15 +67,16 @@ class ProfilePage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: textWhite,
               ),
             ),
 
             const SizedBox(height: 5),
 
-            Text(
+            const Text(
               "Kigali Campus",
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: secondaryText,
                 fontSize: 16,
               ),
             ),
@@ -87,48 +106,58 @@ class ProfilePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Card(
+                color: cardBg,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
                   children: const [
-
                     ProfileMenuTile(
                       icon: Icons.article_outlined,
                       title: "My Posts",
                     ),
 
-                    Divider(height: 1),
+                    Divider(color: Colors.white12, height: 1),
 
                     ProfileMenuTile(
                       icon: Icons.bookmark_outline,
                       title: "Saved",
                     ),
 
-                    Divider(height: 1),
+                    Divider(color: Colors.white12, height: 1),
 
                     ProfileMenuTile(
                       icon: Icons.notifications_none,
                       title: "Notifications",
                     ),
 
-                    Divider(height: 1),
+                    Divider(color: Colors.white12, height: 1),
 
                     ProfileMenuTile(
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
                     ),
 
-                    Divider(height: 1),
+                    Divider(color: Colors.white12, height: 1),
 
                     ProfileMenuTile(
                       icon: Icons.help_outline,
                       title: "Help & Support",
                     ),
+
+                    Divider(color: Colors.white12, height: 1),
+
+                    ProfileMenuTile(
+                      icon: Icons.logout,
+                      title: "Logout",
+                    ),
                   ],
                 ),
               ),
             ),
+
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -155,12 +184,14 @@ class ProfileStat extends StatelessWidget {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
+            color: ProfilePage.accentGold,
           ),
         ),
+        const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            color: Colors.grey.shade600,
+          style: const TextStyle(
+            color: ProfilePage.secondaryText,
           ),
         ),
       ],
@@ -181,9 +212,25 @@ class ProfileMenuTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 4,
+      ),
+      leading: Icon(
+        icon,
+        color: ProfilePage.accentGold,
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: ProfilePage.textWhite,
+          fontSize: 16,
+        ),
+      ),
+      trailing: const Icon(
+        Icons.chevron_right,
+        color: ProfilePage.accentGold,
+      ),
       onTap: () {},
     );
   }
