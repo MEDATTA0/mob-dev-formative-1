@@ -448,8 +448,6 @@ class _ChatsScreenState extends State<ChatsScreen> {
     _navigateToChat(created);
   }
 
-  // ── Build ──────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
