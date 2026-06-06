@@ -194,50 +194,6 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
       ),
-
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 4,
-        backgroundColor: theme.colorScheme.surface,
-        indicatorColor:
-            theme.colorScheme.primary.withValues(alpha: 0.2),
-
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: "Home",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.groups_outlined),
-            selectedIcon: Icon(Icons.groups),
-            label: "Communities",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.event_outlined),
-            selectedIcon: Icon(Icons.event),
-            label: "Events",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.chat_outlined),
-            selectedIcon: Icon(Icons.chat),
-            label: "Messages",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: "Profile",
-          ),
-        ],
-
-        onDestinationSelected: (index) {
-          if (index == 4) return;
-
-          _navigateToPage(
-            context,
-            const SettingsPage(),
-          );
-        },
-      ),
     );
   }
 }
