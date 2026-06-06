@@ -4,6 +4,7 @@ import 'package:assignment1/models/index.dart';
 import 'package:assignment1/screens/event_detail.dart';
 import 'package:assignment1/screens/rsvp.dart';
 import 'package:assignment1/screens/profile_page.dart';
+import 'package:assignment1/screens/chats_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -116,6 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       case 3:
         setState(() => _currentIndex = 3);
+        _navigateTo(const ChatsScreen());
         break;
       case 4:
         setState(() => _currentIndex = 4);
