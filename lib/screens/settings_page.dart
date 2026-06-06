@@ -19,6 +19,45 @@ class _SettingsPageState extends State<SettingsPage> {
 
   String selectedLanguage = "English";
 
+  void _navigateWithSlide(Widget page) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (
+          context,
+          animation,
+          secondaryAnimation,
+        ) =>
+            page,
+        transitionsBuilder: (
+          context,
+          animation,
+          secondaryAnimation,
+          child,
+        ) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+
+          final tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(
+            CurveTween(curve: curve),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(
+          milliseconds: 300,
+        ),
+      ),
+    );
+  }
+
   void _showLanguagePicker() {
     final theme = Theme.of(context);
 
@@ -82,7 +121,9 @@ class _SettingsPageState extends State<SettingsPage> {
         content: Text(
           "ALU Intercampus Connect\nVersion 1.0.0",
           style: TextStyle(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            color: theme.colorScheme.onSurface.withValues(
+              alpha: 0.7,
+            ),
           ),
         ),
         actions: [
@@ -116,7 +157,9 @@ class _SettingsPageState extends State<SettingsPage> {
         content: Text(
           "Are you sure you want to logout?",
           style: TextStyle(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            color: theme.colorScheme.onSurface.withValues(
+              alpha: 0.7,
+            ),
           ),
         ),
         actions: [
@@ -127,7 +170,9 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Text(
               "Cancel",
               style: TextStyle(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                color: theme.colorScheme.onSurface.withValues(
+                  alpha: 0.7,
+                ),
               ),
             ),
           ),
@@ -135,8 +180,39 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const LoginScreen(),
+                PageRouteBuilder(
+                  pageBuilder: (
+                    context,
+                    animation,
+                    secondaryAnimation,
+                  ) =>
+                      const LoginScreen(),
+                  transitionsBuilder: (
+                    context,
+                    animation,
+                    secondaryAnimation,
+                    child,
+                  ) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+
+                    return SlideTransition(
+                      position: animation.drive(
+                        Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(
+                          CurveTween(
+                            curve: Curves.easeInOut,
+                          ),
+                        ),
+                      ),
+                      child: child,
+                    );
+                  },
+                  transitionDuration: const Duration(
+                    milliseconds: 300,
+                  ),
                 ),
                 (route) => false,
               );
@@ -153,7 +229,10 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget buildSectionTitle(BuildContext context, String title) {
+  Widget buildSectionTitle(
+    BuildContext context,
+    String title,
+  ) {
     final theme = Theme.of(context);
 
     return Padding(
@@ -183,9 +262,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Card(
       color: theme.colorScheme.surface,
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(
+        bottom: 10,
+      ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(
+          15,
+        ),
       ),
       child: ListTile(
         leading: Icon(
@@ -213,9 +296,11 @@ class _SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor:
+          theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: theme.scaffoldBackgroundColor,
+        backgroundColor:
+            theme.scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
         iconTheme: IconThemeData(
@@ -232,30 +317,34 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          buildSectionTitle(context, "ACCOUNT"),
+          buildSectionTitle(
+            context,
+            "ACCOUNT",
+          ),
 
           buildTile(
             context: context,
             icon: Icons.person_outline,
             title: "Edit Profile",
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const EditProfilePage(),
-                ),
+              _navigateWithSlide(
+                const EditProfilePage(),
               );
             },
           ),
 
-          buildSectionTitle(context, "NOTIFICATIONS"),
+          buildSectionTitle(
+            context,
+            "NOTIFICATIONS",
+          ),
 
           buildTile(
             context: context,
             icon: Icons.notifications_outlined,
             title: "Push Notifications",
             trailing: Switch(
-              activeThumbColor: theme.colorScheme.primary,
+              activeThumbColor:
+                  theme.colorScheme.primary,
               value: pushNotifications,
               onChanged: (value) {
                 setState(() {
@@ -270,7 +359,8 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.email_outlined,
             title: "Email Notifications",
             trailing: Switch(
-              activeThumbColor: theme.colorScheme.primary,
+              activeThumbColor:
+                  theme.colorScheme.primary,
               value: emailNotifications,
               onChanged: (value) {
                 setState(() {
@@ -280,37 +370,42 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
 
-          buildSectionTitle(context, "PRIVACY"),
+          buildSectionTitle(
+            context,
+            "PRIVACY",
+          ),
 
           buildTile(
             context: context,
             icon: Icons.shield_outlined,
             title: "Privacy Settings",
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const PrivacyPage(),
-                ),
+              _navigateWithSlide(
+                const PrivacyPage(),
               );
             },
           ),
 
-          buildSectionTitle(context, "APP"),
+          buildSectionTitle(
+            context,
+            "APP",
+          ),
 
           buildTile(
             context: context,
             icon: Icons.dark_mode_outlined,
             title: "Dark Mode",
             trailing: Switch(
-              activeThumbColor: theme.colorScheme.primary,
+              activeThumbColor:
+                  theme.colorScheme.primary,
               value: darkMode,
               onChanged: (value) {
                 setState(() {
                   darkMode = value;
                 });
 
-                MyApp.of(context)?.changeTheme(value);
+                MyApp.of(context)
+                    ?.changeTheme(value);
               },
             ),
           ),
@@ -322,29 +417,33 @@ class _SettingsPageState extends State<SettingsPage> {
             trailing: Text(
               selectedLanguage,
               style: TextStyle(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                color: theme.colorScheme.onSurface
+                    .withValues(alpha: 0.7),
               ),
             ),
             onTap: _showLanguagePicker,
           ),
 
-          buildSectionTitle(context, "SUPPORT"),
+          buildSectionTitle(
+            context,
+            "SUPPORT",
+          ),
 
           buildTile(
             context: context,
             icon: Icons.help_outline,
             title: "Help Center",
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const HelpPage(),
-                ),
+              _navigateWithSlide(
+                const HelpPage(),
               );
             },
           ),
 
-          buildSectionTitle(context, "ABOUT"),
+          buildSectionTitle(
+            context,
+            "ABOUT",
+          ),
 
           buildTile(
             context: context,

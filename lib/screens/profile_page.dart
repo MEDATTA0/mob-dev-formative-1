@@ -4,12 +4,40 @@ import 'settings_page.dart';
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  void _navigateToPage(BuildContext context, Widget page) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionsBuilder:
+            (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+
+          final tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(
+            CurveTween(curve: Curves.easeInOut),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+
       appBar: AppBar(
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
@@ -24,11 +52,9 @@ class ProfilePage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(
+              _navigateToPage(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const SettingsPage(),
-                ),
+                const SettingsPage(),
               );
             },
             icon: Icon(
@@ -38,12 +64,12 @@ class ProfilePage extends StatelessWidget {
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 20),
 
-            // Profile Picture
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
@@ -112,34 +138,50 @@ class ProfilePage extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
-                    ProfileMenuTile(
+                    const ProfileMenuTile(
                       icon: Icons.article_outlined,
                       title: "My Posts",
                     ),
-                    Divider(height: 1),
-                    ProfileMenuTile(
+
+                    const Divider(height: 1),
+
+                    const ProfileMenuTile(
                       icon: Icons.bookmark_outline,
                       title: "Saved",
                     ),
-                    Divider(height: 1),
-                    ProfileMenuTile(
+
+                    const Divider(height: 1),
+
+                    const ProfileMenuTile(
                       icon: Icons.notifications_none,
                       title: "Notifications",
                     ),
-                    Divider(height: 1),
+
+                    const Divider(height: 1),
+
                     ProfileMenuTile(
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
+                      onTap: () {
+                        _navigateToPage(
+                          context,
+                          const SettingsPage(),
+                        );
+                      },
                     ),
-                    Divider(height: 1),
-                    ProfileMenuTile(
+
+                    const Divider(height: 1),
+
+                    const ProfileMenuTile(
                       icon: Icons.help_outline,
                       title: "Help & Support",
                     ),
-                    Divider(height: 1),
-                    ProfileMenuTile(
+
+                    const Divider(height: 1),
+
+                    const ProfileMenuTile(
                       icon: Icons.logout,
                       title: "Logout",
                     ),
@@ -151,6 +193,50 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 30),
           ],
         ),
+      ),
+
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 4,
+        backgroundColor: theme.colorScheme.surface,
+        indicatorColor:
+            theme.colorScheme.primary.withValues(alpha: 0.2),
+
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: "Home",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.groups_outlined),
+            selectedIcon: Icon(Icons.groups),
+            label: "Communities",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.event_outlined),
+            selectedIcon: Icon(Icons.event),
+            label: "Events",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.chat_outlined),
+            selectedIcon: Icon(Icons.chat),
+            label: "Messages",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: "Profile",
+          ),
+        ],
+
+        onDestinationSelected: (index) {
+          if (index == 4) return;
+
+          _navigateToPage(
+            context,
+            const SettingsPage(),
+          );
+        },
       ),
     );
   }
@@ -195,11 +281,13 @@ class ProfileStat extends StatelessWidget {
 class ProfileMenuTile extends StatelessWidget {
   final IconData icon;
   final String title;
+  final VoidCallback? onTap;
 
   const ProfileMenuTile({
     super.key,
     required this.icon,
     required this.title,
+    this.onTap,
   });
 
   @override
@@ -226,7 +314,7 @@ class ProfileMenuTile extends StatelessWidget {
         Icons.chevron_right,
         color: theme.colorScheme.primary,
       ),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }

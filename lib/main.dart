@@ -107,7 +107,7 @@ class _MyAppState extends State<MyApp> {
       themeMode: _themeMode,
 
      initialRoute: "/",
-      routes: {"/": (context) => LoginScreen()},
+      routes: {"/": (context) => ProfilePage()},
     );
   }
 }
