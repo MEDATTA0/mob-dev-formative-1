@@ -1,42 +1,43 @@
 import 'package:flutter/material.dart';
+import 'settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-  // ALU Theme Colors
-  static const Color primaryBg = Color(0xFF050A1F);
-  static const Color cardBg = Color(0xFF1A243B);
-  static const Color accentGold = Color(0xFFF4A300);
-  static const Color textWhite = Colors.white;
-  static const Color secondaryText = Color(0xFFB0B8C4);
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: primaryBg,
+    final theme = Theme.of(context);
 
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: primaryBg,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Profile",
           style: TextStyle(
-            color: textWhite,
+            color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsPage(),
+                ),
+              );
+            },
+            icon: Icon(
               Icons.settings,
-              color: accentGold,
+              color: theme.colorScheme.primary,
             ),
           ),
         ],
       ),
-
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -48,7 +49,7 @@ class ProfilePage extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: accentGold,
+                  color: theme.colorScheme.primary,
                   width: 3,
                 ),
               ),
@@ -62,30 +63,30 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 15),
 
-            const Text(
+            Text(
               "John Doe",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: textWhite,
+                color: theme.colorScheme.onSurface,
               ),
             ),
 
             const SizedBox(height: 5),
 
-            const Text(
+            Text(
               "Kigali Campus",
               style: TextStyle(
-                color: secondaryText,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 16,
               ),
             ),
 
             const SizedBox(height: 30),
 
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
+              children: [
                 ProfileStat(
                   number: "23",
                   label: "Events",
@@ -106,48 +107,38 @@ class ProfilePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Card(
-                color: cardBg,
+                color: theme.colorScheme.surface,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Column(
-                  children: const [
+                child: const Column(
+                  children: [
                     ProfileMenuTile(
                       icon: Icons.article_outlined,
                       title: "My Posts",
                     ),
-
-                    Divider(color: Colors.white12, height: 1),
-
+                    Divider(height: 1),
                     ProfileMenuTile(
                       icon: Icons.bookmark_outline,
                       title: "Saved",
                     ),
-
-                    Divider(color: Colors.white12, height: 1),
-
+                    Divider(height: 1),
                     ProfileMenuTile(
                       icon: Icons.notifications_none,
                       title: "Notifications",
                     ),
-
-                    Divider(color: Colors.white12, height: 1),
-
+                    Divider(height: 1),
                     ProfileMenuTile(
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
                     ),
-
-                    Divider(color: Colors.white12, height: 1),
-
+                    Divider(height: 1),
                     ProfileMenuTile(
                       icon: Icons.help_outline,
                       title: "Help & Support",
                     ),
-
-                    Divider(color: Colors.white12, height: 1),
-
+                    Divider(height: 1),
                     ProfileMenuTile(
                       icon: Icons.logout,
                       title: "Logout",
@@ -177,21 +168,23 @@ class ProfileStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       children: [
         Text(
           number,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: ProfilePage.accentGold,
+            color: theme.colorScheme.primary,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(
-            color: ProfilePage.secondaryText,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
       ],
@@ -211,6 +204,8 @@ class ProfileMenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -218,18 +213,18 @@ class ProfileMenuTile extends StatelessWidget {
       ),
       leading: Icon(
         icon,
-        color: ProfilePage.accentGold,
+        color: theme.colorScheme.primary,
       ),
       title: Text(
         title,
-        style: const TextStyle(
-          color: ProfilePage.textWhite,
+        style: TextStyle(
+          color: theme.colorScheme.onSurface,
           fontSize: 16,
         ),
       ),
-      trailing: const Icon(
+      trailing: Icon(
         Icons.chevron_right,
-        color: ProfilePage.accentGold,
+        color: theme.colorScheme.primary,
       ),
       onTap: () {},
     );

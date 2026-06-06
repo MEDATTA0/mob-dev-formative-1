@@ -1,7 +1,7 @@
 import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
-import 'package:assignment1/screens/login.dart';
 import 'package:assignment1/screens/profile_page.dart';
+import 'package:assignment1/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -10,16 +10,31 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await initializeStores();
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  static _MyAppState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_MyAppState>();
+  }
+
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.dark;
+
+  void changeTheme(bool isDark) {
+    setState(() {
+      _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  ThemeData get lightTheme => ThemeData(
         useMaterial3: true,
         colorScheme: const ColorScheme.light(
           primary: AppColors.lightPrimary,
@@ -48,9 +63,9 @@ class MyApp extends StatelessWidget {
         ),
         brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.lightBackground,
-      ),
+      );
 
-      darkTheme: ThemeData(
+  ThemeData get darkTheme => ThemeData(
         useMaterial3: true,
         colorScheme: const ColorScheme.dark(
           primary: AppColors.darkPrimary,
@@ -79,11 +94,19 @@ class MyApp extends StatelessWidget {
         ),
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBackground,
-      ),
+      );
 
-      themeMode: ThemeMode.system,
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
 
-      initialRoute: "/",
+      theme: lightTheme,
+      darkTheme: darkTheme,
+
+      themeMode: _themeMode,
+
+     initialRoute: "/",
       routes: {"/": (context) => LoginScreen()},
     );
   }
