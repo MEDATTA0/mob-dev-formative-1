@@ -1,5 +1,7 @@
+import 'package:assignment1/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
 import 'settings_page.dart';
+import 'home.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -243,7 +245,7 @@ class ProfilePage extends StatelessWidget {
                 onTap: () {
                   _navigateToPage(
                     context,
-                    const SettingsPage(),
+                    const HomeScreen(),
                   );
                 },
               ),
@@ -255,7 +257,7 @@ class ProfilePage extends StatelessWidget {
                 onTap: () {
                   _navigateToPage(
                     context,
-                    const SettingsPage(),
+                    const HomeScreen(),
                   );
                 },
               ),
@@ -269,7 +271,7 @@ class ProfilePage extends StatelessWidget {
                 onTap: () {
                   _navigateToPage(
                     context,
-                    const SettingsPage(),
+                    const ChatsScreen(),
                   );
                 },
               ),
