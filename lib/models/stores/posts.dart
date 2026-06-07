@@ -93,7 +93,6 @@ class PostStore implements Store<Post> {
   @override
   Future<void> loadDummy() async {
     if (_box.isNotEmpty) return;
-
     for (var p in posts) {
       await add(p);
     }

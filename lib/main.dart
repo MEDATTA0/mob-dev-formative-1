@@ -1,6 +1,7 @@
 import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/screens/profile_page.dart';
+import 'package:assignment1/screens/home.dart';
 import 'package:assignment1/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,7 +21,6 @@ class MyApp extends StatefulWidget {
   }
 
   const MyApp({super.key});
-
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -35,66 +35,66 @@ class _MyAppState extends State<MyApp> {
   }
 
   ThemeData get lightTheme => ThemeData(
-        useMaterial3: true,
-        colorScheme: const ColorScheme.light(
-          primary: AppColors.lightPrimary,
-          secondary: AppColors.lightSecondary,
-          surface: AppColors.lightSurface,
-          error: Color(0xFFEF4444),
-          onPrimary: Color(0xFF0F172A),
-          onSurface: AppColors.lightText,
-        ),
-        textTheme: TextTheme(
-          bodyLarge: GoogleFonts.poppins(color: AppColors.lightText),
-          bodyMedium: GoogleFonts.poppins(color: AppColors.lightText),
-          bodySmall: GoogleFonts.poppins(color: AppColors.lightText),
-          displayLarge: GoogleFonts.poppins(color: AppColors.lightText),
-          displayMedium: GoogleFonts.poppins(color: AppColors.lightText),
-          displaySmall: GoogleFonts.poppins(color: AppColors.lightText),
-          headlineLarge: GoogleFonts.poppins(color: AppColors.lightText),
-          headlineMedium: GoogleFonts.poppins(color: AppColors.lightText),
-          headlineSmall: GoogleFonts.poppins(color: AppColors.lightText),
-          titleLarge: GoogleFonts.poppins(color: AppColors.lightText),
-          titleMedium: GoogleFonts.poppins(color: AppColors.lightText),
-          titleSmall: GoogleFonts.poppins(color: AppColors.lightText),
-          labelLarge: GoogleFonts.poppins(color: AppColors.lightText),
-          labelMedium: GoogleFonts.poppins(color: AppColors.lightText),
-          labelSmall: GoogleFonts.poppins(color: AppColors.lightText),
-        ),
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: AppColors.lightBackground,
-      );
+    useMaterial3: true,
+    colorScheme: const ColorScheme.light(
+      primary: AppColors.lightPrimary,
+      secondary: AppColors.lightSecondary,
+      surface: AppColors.lightSurface,
+      error: Color(0xFFEF4444),
+      onPrimary: Color(0xFF0F172A),
+      onSurface: AppColors.lightText,
+    ),
+    textTheme: TextTheme(
+      bodyLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      bodyMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      bodySmall: GoogleFonts.poppins(color: AppColors.lightText),
+      displayLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      displayMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      displaySmall: GoogleFonts.poppins(color: AppColors.lightText),
+      headlineLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      headlineMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      headlineSmall: GoogleFonts.poppins(color: AppColors.lightText),
+      titleLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      titleMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      titleSmall: GoogleFonts.poppins(color: AppColors.lightText),
+      labelLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      labelMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      labelSmall: GoogleFonts.poppins(color: AppColors.lightText),
+    ),
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: AppColors.lightBackground,
+  );
 
   ThemeData get darkTheme => ThemeData(
-        useMaterial3: true,
-        colorScheme: const ColorScheme.dark(
-          primary: AppColors.darkPrimary,
-          secondary: AppColors.darkSecondary,
-          surface: AppColors.darkSurface,
-          error: Color(0xFFEF4444),
-          onPrimary: Color(0xFF0F172A),
-          onSurface: AppColors.darkText,
-        ),
-        textTheme: TextTheme(
-          bodyLarge: GoogleFonts.poppins(color: AppColors.darkText),
-          bodyMedium: GoogleFonts.poppins(color: AppColors.darkText),
-          bodySmall: GoogleFonts.poppins(color: AppColors.darkText),
-          displayLarge: GoogleFonts.poppins(color: AppColors.darkText),
-          displayMedium: GoogleFonts.poppins(color: AppColors.darkText),
-          displaySmall: GoogleFonts.poppins(color: AppColors.darkText),
-          headlineLarge: GoogleFonts.poppins(color: AppColors.darkText),
-          headlineMedium: GoogleFonts.poppins(color: AppColors.darkText),
-          headlineSmall: GoogleFonts.poppins(color: AppColors.darkText),
-          titleLarge: GoogleFonts.poppins(color: AppColors.darkText),
-          titleMedium: GoogleFonts.poppins(color: AppColors.darkText),
-          titleSmall: GoogleFonts.poppins(color: AppColors.darkText),
-          labelLarge: GoogleFonts.poppins(color: AppColors.darkText),
-          labelMedium: GoogleFonts.poppins(color: AppColors.darkText),
-          labelSmall: GoogleFonts.poppins(color: AppColors.darkText),
-        ),
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.darkBackground,
-      );
+    useMaterial3: true,
+    colorScheme: const ColorScheme.dark(
+      primary: AppColors.darkPrimary,
+      secondary: AppColors.darkSecondary,
+      surface: AppColors.darkSurface,
+      error: Color(0xFFEF4444),
+      onPrimary: Color(0xFF0F172A),
+      onSurface: AppColors.darkText,
+    ),
+    textTheme: TextTheme(
+      bodyLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      bodyMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      bodySmall: GoogleFonts.poppins(color: AppColors.darkText),
+      displayLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      displayMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      displaySmall: GoogleFonts.poppins(color: AppColors.darkText),
+      headlineLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      headlineMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      headlineSmall: GoogleFonts.poppins(color: AppColors.darkText),
+      titleLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      titleMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      titleSmall: GoogleFonts.poppins(color: AppColors.darkText),
+      labelLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      labelMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      labelSmall: GoogleFonts.poppins(color: AppColors.darkText),
+    ),
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: AppColors.darkBackground,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +106,12 @@ class _MyAppState extends State<MyApp> {
 
       themeMode: _themeMode,
 
-     initialRoute: "/",
-      routes: {"/": (context) => LoginScreen()},
+      initialRoute: "/",
+      routes: {
+        "/": (context) => LoginScreen(),
+        "/home": (context) => HomeScreen(),
+        "/profile": (context) => ProfilePage(),
+      },
     );
   }
 }
