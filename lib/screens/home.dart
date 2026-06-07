@@ -115,6 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => _currentIndex = 1);
         break;
       case 2:
+      	setState(() => _currentIndex = 2);
+        _navigateTo(const CreatePostScreen());
         break;
       case 3:
         setState(() => _currentIndex = 3);
