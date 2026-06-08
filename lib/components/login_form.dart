@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/components/custom_text_field.dart';
 import 'package:assignment1/components/custom_button.dart';
+import 'package:assignment1/models/session.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -50,21 +51,25 @@ class _LoginFormState extends State<LoginForm> {
         orElse: () => throw Exception('User not found'),
       );
 
-      if (user.password == password) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Welcome back, ${user.fullName}!'),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
-          widget.onLoginSuccess();
-        }
-      } else {
+     if (user.password == password) {
+  Session.currentUserId = user.id;
+
+  if (mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Welcome back, ${user.fullName}!'),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    widget.onLoginSuccess();
+  }
+      } 
+    else {
         throw Exception('Invalid password');
       }
     } catch (e) {
