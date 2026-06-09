@@ -124,6 +124,32 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     return _clubs;
   }
 
+  Future<void> _toggleJoin(Club club) async {
+    final clubId = club.getId();
+    if (_isMember(club)) {
+      // leave: delete this user's membership for the club
+      final mine = await clubMembershipStore.findByUserId(_userId);
+      for (final m in mine.where((m) => m.clubId == clubId)) {
+        await clubMembershipStore.delete(m.getId());
+      }
+    } else {
+      // join: add a membership
+      await clubMembershipStore.add(
+        ClubMembership(userId: _userId, clubId: clubId),
+      );
+    }
+    await _loadData(); // refresh so the button reflects the new state
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _isMember(club) ? 'Joined ${club.name}' : 'Left ${club.name}',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   Widget _buildTabs() {
     return Container(
       color: Colors.white,
@@ -188,16 +214,18 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Column(
-            children: [
-              _buildTabs(),
-              Expanded(
-                child: ListView(
+              children: [
+                _buildTabs(),
+                Expanded(
+                  child: ListView(
                     padding: const EdgeInsets.all(16),
-                    children: _clubs.map(_buildClubCard).toList(), // temporary
+                    children: _visibleClubs
+                        .map(_buildClubCard)
+                        .toList(), // temporary
                   ),
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
     );
   }
 }
