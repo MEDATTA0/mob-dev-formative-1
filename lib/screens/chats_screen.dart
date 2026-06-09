@@ -14,6 +14,7 @@ class ChatsScreen extends StatefulWidget {
 class _ChatsScreenState extends State<ChatsScreen> {
   List<Chat> _chats = [];
   Map<int, User> _usersById = {};
+  Map<int, Message> _lastMessagesByChatId = {};
   User? _currentUser;
   bool _loading = true;
 
@@ -26,15 +27,22 @@ class _ChatsScreenState extends State<ChatsScreen> {
   Future<void> _loadData() async {
     final chats = await chatStore.findAll();
     final users = await userStore.findAll();
+    final lastMessages = await messageStore.getLastMessageOfEachChat();
     if (!mounted) return;
     setState(() {
       _chats = chats
         ..sort((a, b) {
-          final aTime = a.lastActivityAt ?? a.getCreatedAt();
-          final bTime = b.lastActivityAt ?? b.getCreatedAt();
+          final aMsg = lastMessages[a.id];
+          final bMsg = lastMessages[b.id];
+          final aTime = aMsg?.timestamp ?? a.lastActivityAt ?? a.getCreatedAt();
+          final bTime = bMsg?.timestamp ?? b.lastActivityAt ?? b.getCreatedAt();
           return bTime.compareTo(aTime);
         });
-      _usersById = {for (final u in users) if (u.id != null) u.id!: u};
+      _usersById = {
+        for (final u in users)
+          if (u.id != null) u.id!: u,
+      };
+      _lastMessagesByChatId = lastMessages;
       _currentUser = users.isNotEmpty ? users.first : null;
       _loading = false;
     });
@@ -48,13 +56,14 @@ class _ChatsScreenState extends State<ChatsScreen> {
     return DateFormat('MMM d').format(dt);
   }
 
-  void _navigateToChat(Chat chat) {
-    Navigator.push(
+  Future<void> _navigateToChat(Chat chat) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => ConversationScreen(chat: chat, usersById: _usersById),
       ),
     );
+    _loadData();
   }
 
   // ── Create conversation ────────────────────────────────────
@@ -102,16 +111,23 @@ class _ChatsScreenState extends State<ChatsScreen> {
                   color: const Color(0xFFF5A623).withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person_outline,
-                    color: Color(0xFFF5A623), size: 22),
+                child: const Icon(
+                  Icons.person_outline,
+                  color: Color(0xFFF5A623),
+                  size: 22,
+                ),
               ),
               title: const Text(
                 'Direct Message',
                 style: TextStyle(
-                    fontWeight: FontWeight.w600, color: Color(0xFF0F1B2D)),
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0F1B2D),
+                ),
               ),
-              subtitle: Text('Message someone directly',
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+              subtitle: Text(
+                'Message someone directly',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _showDirectMessageSheet();
@@ -125,16 +141,23 @@ class _ChatsScreenState extends State<ChatsScreen> {
                   color: const Color(0xFFF5A623).withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.group_outlined,
-                    color: Color(0xFFF5A623), size: 22),
+                child: const Icon(
+                  Icons.group_outlined,
+                  color: Color(0xFFF5A623),
+                  size: 22,
+                ),
               ),
               title: const Text(
                 'New Group',
                 style: TextStyle(
-                    fontWeight: FontWeight.w600, color: Color(0xFF0F1B2D)),
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0F1B2D),
+                ),
               ),
-              subtitle: Text('Create a group conversation',
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+              subtitle: Text(
+                'Create a group conversation',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _showNewGroupSheet();
@@ -197,8 +220,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
               (user) => ListTile(
                 leading: CircleAvatar(
                   radius: 22,
-                  backgroundColor:
-                      const Color(0xFFF5A623).withValues(alpha: 0.15),
+                  backgroundColor: const Color(
+                    0xFFF5A623,
+                  ).withValues(alpha: 0.15),
                   child: Text(
                     user.fullName[0].toUpperCase(),
                     style: const TextStyle(
@@ -210,12 +234,18 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 title: Text(
                   user.fullName,
                   style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: Color(0xFF0F1B2D)),
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF0F1B2D),
+                  ),
                 ),
                 subtitle: user.headline != null
-                    ? Text(user.headline!,
+                    ? Text(
+                        user.headline!,
                         style: TextStyle(
-                            color: Colors.grey.shade500, fontSize: 12))
+                          color: Colors.grey.shade500,
+                          fontSize: 12,
+                        ),
+                      )
                     : null,
                 onTap: () {
                   Navigator.pop(context);
@@ -287,10 +317,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
                     decoration: InputDecoration(
                       hintText: 'Group name',
                       hintStyle: TextStyle(
-                          color: Colors.grey.shade400, fontSize: 14),
+                        color: Colors.grey.shade400,
+                        fontSize: 14,
+                      ),
                       border: InputBorder.none,
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onChanged: (_) => setModalState(() {}),
                   ),
@@ -320,8 +351,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
                   activeColor: const Color(0xFFF5A623),
                   secondary: CircleAvatar(
                     radius: 20,
-                    backgroundColor:
-                        const Color(0xFFF5A623).withValues(alpha: 0.15),
+                    backgroundColor: const Color(
+                      0xFFF5A623,
+                    ).withValues(alpha: 0.15),
                     child: Text(
                       user.fullName[0].toUpperCase(),
                       style: const TextStyle(
@@ -333,14 +365,19 @@ class _ChatsScreenState extends State<ChatsScreen> {
                   title: Text(
                     user.fullName,
                     style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F1B2D),
-                        fontSize: 14),
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF0F1B2D),
+                      fontSize: 14,
+                    ),
                   ),
                   subtitle: user.headline != null
-                      ? Text(user.headline!,
+                      ? Text(
+                          user.headline!,
                           style: TextStyle(
-                              color: Colors.grey.shade500, fontSize: 12))
+                            color: Colors.grey.shade500,
+                            fontSize: 12,
+                          ),
+                        )
                       : null,
                 ),
               ),
@@ -349,19 +386,22 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: nameController.text.trim().isNotEmpty &&
+                    onPressed:
+                        nameController.text.trim().isNotEmpty &&
                             selected.isNotEmpty
                         ? () {
                             Navigator.pop(ctx);
                             _createGroup(
-                                nameController.text.trim(),
-                                selected.toList());
+                              nameController.text.trim(),
+                              selected.toList(),
+                            );
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF5A623),
-                      disabledBackgroundColor:
-                          const Color(0xFFF5A623).withValues(alpha: 0.3),
+                      disabledBackgroundColor: const Color(
+                        0xFFF5A623,
+                      ).withValues(alpha: 0.3),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -389,10 +429,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
   Future<void> _startDirectMessage(User other) async {
     if (_currentUser?.id == null || other.id == null) return;
 
-    final existing = _chats.firstWhereOrNull((c) =>
-        !c.isGroupChat &&
-        c.participantIds.contains(_currentUser!.id) &&
-        c.participantIds.contains(other.id));
+    final existing = _chats.firstWhereOrNull(
+      (c) =>
+          !c.isGroupChat &&
+          c.participantIds.contains(_currentUser!.id) &&
+          c.participantIds.contains(other.id),
+    );
 
     if (existing != null) {
       _navigateToChat(existing);
@@ -406,15 +448,16 @@ class _ChatsScreenState extends State<ChatsScreen> {
       participantIds: [_currentUser!.id!, other.id!],
     );
     final created = await chatStore.add(chat);
-    await chatParticipantStore.add(ChatParticipant(
-      chatId: created.id!,
-      userId: _currentUser!.id!,
-      role: ChatParticipantRole.admin,
-    ));
-    await chatParticipantStore.add(ChatParticipant(
-      chatId: created.id!,
-      userId: other.id!,
-    ));
+    await chatParticipantStore.add(
+      ChatParticipant(
+        chatId: created.id!,
+        userId: _currentUser!.id!,
+        role: ChatParticipantRole.admin,
+      ),
+    );
+    await chatParticipantStore.add(
+      ChatParticipant(chatId: created.id!, userId: other.id!),
+    );
 
     if (!mounted) return;
     setState(() => _chats.insert(0, created));
@@ -431,16 +474,17 @@ class _ChatsScreenState extends State<ChatsScreen> {
       participantIds: [_currentUser!.id!, ...members.map((u) => u.id!)],
     );
     final created = await chatStore.add(chat);
-    await chatParticipantStore.add(ChatParticipant(
-      chatId: created.id!,
-      userId: _currentUser!.id!,
-      role: ChatParticipantRole.admin,
-    ));
-    for (final member in members) {
-      await chatParticipantStore.add(ChatParticipant(
+    await chatParticipantStore.add(
+      ChatParticipant(
         chatId: created.id!,
-        userId: member.id!,
-      ));
+        userId: _currentUser!.id!,
+        role: ChatParticipantRole.admin,
+      ),
+    );
+    for (final member in members) {
+      await chatParticipantStore.add(
+        ChatParticipant(chatId: created.id!, userId: member.id!),
+      );
     }
 
     if (!mounted) return;
@@ -457,8 +501,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
         elevation: 0,
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios,
-              color: Color(0xFF0F1B2D), size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Color(0xFF0F1B2D),
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -482,27 +529,29 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 child: CircularProgressIndicator(color: Color(0xFFF5A623)),
               )
             : _chats.isEmpty
-                ? Center(
-                    child: Text(
-                      'No conversations yet',
-                      style:
-                          TextStyle(color: Colors.grey.shade400, fontSize: 15),
-                    ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    itemCount: _chats.length,
-                    separatorBuilder: (_, _) =>
-                        const Divider(height: 1, indent: 72, endIndent: 16),
-                    itemBuilder: (context, i) => _buildChatTile(_chats[i]),
-                  ),
+            ? Center(
+                child: Text(
+                  'No conversations yet',
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+                ),
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: _chats.length,
+                separatorBuilder: (_, _) =>
+                    const Divider(height: 1, indent: 72, endIndent: 16),
+                itemBuilder: (context, i) => _buildChatTile(_chats[i]),
+              ),
       ),
     );
   }
 
   Widget _buildChatTile(Chat chat) {
     final initial = chat.name[0].toUpperCase();
-    final time = _formatTime(chat.lastActivityAt ?? chat.getCreatedAt());
+    final lastMsg = _lastMessagesByChatId[chat.id];
+    final time = _formatTime(
+      lastMsg?.timestamp ?? chat.lastActivityAt ?? chat.getCreatedAt(),
+    );
 
     return InkWell(
       onTap: () => _navigateToChat(chat),
@@ -512,8 +561,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor:
-                  const Color(0xFFF5A623).withValues(alpha: 0.15),
+              backgroundColor: const Color(0xFFF5A623).withValues(alpha: 0.15),
               child: Text(
                 initial,
                 style: const TextStyle(
@@ -553,7 +601,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          chat.lastMessagePreview ?? 'No messages yet',
+                          lastMsg?.contentText ??
+                              chat.lastMessagePreview ??
+                              'No messages yet',
                           style: TextStyle(
                             fontSize: 13,
                             color: chat.unreadCount > 0
@@ -571,7 +621,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 2),
+                            horizontal: 7,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFF5A623),
                             borderRadius: BorderRadius.circular(12),
