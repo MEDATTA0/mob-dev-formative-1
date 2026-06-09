@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/screens/event_detail.dart';
 import 'package:assignment1/screens/rsvp.dart';
@@ -62,7 +63,13 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _allPosts = allPosts.where((p) => p.isPublished).toList();
       _posts = _allPosts;
-      _currentUser = allUsers.isNotEmpty ? allUsers.first : null;
+      final loggedInEmail = AuthSession().loggedInEmail;
+      _currentUser = loggedInEmail != null
+          ? allUsers.firstWhere(
+              (u) => u.email.toLowerCase() == loggedInEmail.toLowerCase(),
+              orElse: () => allUsers.first,
+            )
+          : (allUsers.isNotEmpty ? allUsers.first : null);
     });
   }
 
