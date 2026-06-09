@@ -38,6 +38,24 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     }
   }
 
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.groups_outlined, size: 52, color: Colors.grey.shade300),
+          const SizedBox(height: 12),
+          Text(
+            _tab == 'My Clubs'
+                ? "You haven't joined any clubs yet"
+                : 'No clubs available',
+            style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildClubCard(Club club) {
     final isMember = _isMember(club);
     return Container(
@@ -83,11 +101,17 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
             ),
           ),
           // status indicator (becomes a real button in commit 4)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: (isMember ? _green : _amber).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
+          OutlinedButton(
+            onPressed: () => _toggleJoin(club),
+            style: OutlinedButton.styleFrom(
+              backgroundColor: isMember
+                  ? _green.withValues(alpha: 0.1)
+                  : Colors.transparent,
+              side: BorderSide(color: isMember ? _green : _amber, width: 1.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
             ),
             child: Text(
               isMember ? 'Joined' : 'Join',
@@ -122,6 +146,32 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   List<Club> get _visibleClubs {
     if (_tab == 'My Clubs') return _clubs.where(_isMember).toList();
     return _clubs;
+  }
+
+  Future<void> _toggleJoin(Club club) async {
+    final clubId = club.getId();
+    if (_isMember(club)) {
+      // leave: delete this user's membership for the club
+      final mine = await clubMembershipStore.findByUserId(_userId);
+      for (final m in mine.where((m) => m.clubId == clubId)) {
+        await clubMembershipStore.delete(m.getId());
+      }
+    } else {
+      // join: add a membership
+      await clubMembershipStore.add(
+        ClubMembership(userId: _userId, clubId: clubId),
+      );
+    }
+    await _loadData(); // refresh so the button reflects the new state
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _isMember(club) ? 'Joined ${club.name}' : 'Left ${club.name}',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _toggleJoin(Club club) async {
@@ -217,7 +267,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               children: [
                 _buildTabs(),
                 Expanded(
-                  child: ListView(
+                  child: _visibleClubs.isEmpty ? _buildEmptyState(): ListView(
                     padding: const EdgeInsets.all(16),
                     children: _visibleClubs
                         .map(_buildClubCard)
