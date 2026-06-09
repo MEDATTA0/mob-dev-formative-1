@@ -204,13 +204,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
                       onTap: () {
-                        Session.logout();
-
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/',
-                          (route) => false,
-                        );
+                        _navigateToPage(context, const SettingsPage());
                       },
                     ),
 
