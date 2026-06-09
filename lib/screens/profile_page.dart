@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
-import 'package:assignment1/models/session.dart';
 import 'settings_page.dart';
 import 'help_page.dart';
 
@@ -22,17 +22,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> loadUser() async {
-    final userId = Session.currentUserId;
-
-    if (userId == null) {
-      setState(() {
-        isLoading = false;
-      });
+    final loggedInEmail = AuthSession().loggedInEmail;
+    if (loggedInEmail == null) {
+      setState(() => isLoading = false);
       return;
     }
-
-    final user = await userStore.findById(userId);
-
+    final users = await userStore.findAll();
+    final user = users.firstWhere(
+      (u) => u.email.toLowerCase() == loggedInEmail.toLowerCase(),
+      orElse: () => users.first,
+    );
     setState(() {
       currentUser = user;
       isLoading = false;
@@ -247,8 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.logout,
                       title: "Logout",
                       onTap: () {
-                        Session.logout();
-
+                        AuthSession().loggedInEmail = null;
                         Navigator.pushNamedAndRemoveUntil(
                           context,
                           '/',
