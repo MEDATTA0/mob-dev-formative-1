@@ -52,25 +52,22 @@ class _LoginFormState extends State<LoginForm> {
         orElse: () => throw Exception('User not found'),
       );
 
-     if (user.password == password) {
-  Session.currentUserId = user.id;
-
-  if (mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Welcome back, ${user.fullName}!'),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
-
-    widget.onLoginSuccess();
-  }
-      } 
-    else {
+      if (user.password == password) {
+        AuthSession().loggedInEmail = user.email;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Welcome back, ${user.fullName}!'),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+          widget.onLoginSuccess();
+        }
+      } else {
         throw Exception('Invalid password');
       }
     } catch (e) {
@@ -182,4 +179,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-

@@ -143,16 +143,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
           ],
         ),
       ),
-      body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFF5A623)),
-            )
-          : Column(
-              children: [
-                Expanded(child: _buildMessageList()),
-                _buildInputBar(),
-              ],
-            ),
+      body: SafeArea(
+        child: _loading
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFFF5A623)),
+              )
+            : Column(
+                children: [
+                  Expanded(child: _buildMessageList()),
+                  _buildInputBar(),
+                ],
+              ),
+      ),
     );
   }
 
