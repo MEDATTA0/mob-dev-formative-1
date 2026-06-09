@@ -24,7 +24,74 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     super.initState();
     _loadData();
   }
+IconData _iconFor(String? name) {
+    switch (name) {
+      case 'lightbulb':
+        return Icons.lightbulb_outline;
+      case 'insights':
+        return Icons.insights;
+      case 'school':
+        return Icons.school_outlined;
+      default:
+        return Icons.groups_outlined;
+    }
+  }
 
+  Widget _buildClubCard(Club club) {
+    final isMember = _isMember(club);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: _amber.withValues(alpha: 0.12),
+            child: Icon(_iconFor(club.logoIconName), color: _amber),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(club.name,
+                    style: const TextStyle(
+                        color: _navy, fontSize: 15, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text('${club.memberCount} members',
+                    style:
+                        TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+              ],
+            ),
+          ),
+          // status indicator (becomes a real button in commit 4)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: (isMember ? _green : _amber).withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(isMember ? 'Joined' : 'Join',
+                style: TextStyle(
+                    color: isMember ? _green : _amber,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13)),
+          ),
+        ],
+      ),
+    );
+  }
   Future<void> _loadData() async {
     final users = await userStore.findAll();
     final clubs = await clubStore.findAll();
@@ -60,7 +127,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(16),
-              children: _clubs.map((c) => Text(c.name)).toList(), // temporary
+              children: _clubs.map(_buildClubCard).toList(),  // temporary
             ),
     );
   }
