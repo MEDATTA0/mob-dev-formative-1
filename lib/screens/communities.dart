@@ -24,7 +24,8 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     super.initState();
     _loadData();
   }
-IconData _iconFor(String? name) {
+
+  IconData _iconFor(String? name) {
     switch (name) {
       case 'lightbulb':
         return Icons.lightbulb_outline;
@@ -65,13 +66,19 @@ IconData _iconFor(String? name) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(club.name,
-                    style: const TextStyle(
-                        color: _navy, fontSize: 15, fontWeight: FontWeight.w700)),
+                Text(
+                  club.name,
+                  style: const TextStyle(
+                    color: _navy,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('${club.memberCount} members',
-                    style:
-                        TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                Text(
+                  '${club.memberCount} members',
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -82,16 +89,20 @@ IconData _iconFor(String? name) {
               color: (isMember ? _green : _amber).withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text(isMember ? 'Joined' : 'Join',
-                style: TextStyle(
-                    color: isMember ? _green : _amber,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13)),
+            child: Text(
+              isMember ? 'Joined' : 'Join',
+              style: TextStyle(
+                color: isMember ? _green : _amber,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
+
   Future<void> _loadData() async {
     final users = await userStore.findAll();
     final clubs = await clubStore.findAll();
@@ -104,6 +115,57 @@ IconData _iconFor(String? name) {
       _myMemberships = memberships;
       _loading = false;
     });
+  }
+
+  String _tab = 'All Clubs';
+
+  List<Club> get _visibleClubs {
+    if (_tab == 'My Clubs') return _clubs.where(_isMember).toList();
+    return _clubs;
+  }
+
+  Widget _buildTabs() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0F2F5),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        padding: const EdgeInsets.all(4),
+        child: Row(
+          children: ['All Clubs', 'My Clubs'].map((tab) {
+            final selected = _tab == tab;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => _tab = tab),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: selected ? Colors.white : Colors.transparent,
+                    borderRadius: BorderRadius.circular(30),
+                    border: selected
+                        ? Border.all(color: _amber, width: 1.5)
+                        : null,
+                  ),
+                  child: Text(
+                    tab,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: selected ? _amber : Colors.grey.shade500,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
   }
 
   // Is the current user an active member of this club?
@@ -125,10 +187,17 @@ IconData _iconFor(String? name) {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: _clubs.map(_buildClubCard).toList(),  // temporary
-            ),
+          : Column(
+            children: [
+              _buildTabs(),
+              Expanded(
+                child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: _clubs.map(_buildClubCard).toList(), // temporary
+                  ),
+              ),
+            ],
+          ),
     );
   }
 }
