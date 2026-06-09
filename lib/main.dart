@@ -27,7 +27,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.dark;
+  ThemeMode _themeMode = ThemeMode.system;
 
   void changeTheme(bool isDark) {
     setState(() {
@@ -45,23 +45,7 @@ class _MyAppState extends State<MyApp> {
       onPrimary: Color(0xFF0F172A),
       onSurface: AppColors.lightText,
     ),
-    textTheme: TextTheme(
-      bodyLarge: GoogleFonts.poppins(color: AppColors.lightText),
-      bodyMedium: GoogleFonts.poppins(color: AppColors.lightText),
-      bodySmall: GoogleFonts.poppins(color: AppColors.lightText),
-      displayLarge: GoogleFonts.poppins(color: AppColors.lightText),
-      displayMedium: GoogleFonts.poppins(color: AppColors.lightText),
-      displaySmall: GoogleFonts.poppins(color: AppColors.lightText),
-      headlineLarge: GoogleFonts.poppins(color: AppColors.lightText),
-      headlineMedium: GoogleFonts.poppins(color: AppColors.lightText),
-      headlineSmall: GoogleFonts.poppins(color: AppColors.lightText),
-      titleLarge: GoogleFonts.poppins(color: AppColors.lightText),
-      titleMedium: GoogleFonts.poppins(color: AppColors.lightText),
-      titleSmall: GoogleFonts.poppins(color: AppColors.lightText),
-      labelLarge: GoogleFonts.poppins(color: AppColors.lightText),
-      labelMedium: GoogleFonts.poppins(color: AppColors.lightText),
-      labelSmall: GoogleFonts.poppins(color: AppColors.lightText),
-    ),
+    textTheme: GoogleFonts.poppinsTextTheme(),
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.lightBackground,
   );
@@ -76,23 +60,7 @@ class _MyAppState extends State<MyApp> {
       onPrimary: Color(0xFF0F172A),
       onSurface: AppColors.darkText,
     ),
-    textTheme: TextTheme(
-      bodyLarge: GoogleFonts.poppins(color: AppColors.darkText),
-      bodyMedium: GoogleFonts.poppins(color: AppColors.darkText),
-      bodySmall: GoogleFonts.poppins(color: AppColors.darkText),
-      displayLarge: GoogleFonts.poppins(color: AppColors.darkText),
-      displayMedium: GoogleFonts.poppins(color: AppColors.darkText),
-      displaySmall: GoogleFonts.poppins(color: AppColors.darkText),
-      headlineLarge: GoogleFonts.poppins(color: AppColors.darkText),
-      headlineMedium: GoogleFonts.poppins(color: AppColors.darkText),
-      headlineSmall: GoogleFonts.poppins(color: AppColors.darkText),
-      titleLarge: GoogleFonts.poppins(color: AppColors.darkText),
-      titleMedium: GoogleFonts.poppins(color: AppColors.darkText),
-      titleSmall: GoogleFonts.poppins(color: AppColors.darkText),
-      labelLarge: GoogleFonts.poppins(color: AppColors.darkText),
-      labelMedium: GoogleFonts.poppins(color: AppColors.darkText),
-      labelSmall: GoogleFonts.poppins(color: AppColors.darkText),
-    ),
+    textTheme: GoogleFonts.poppinsTextTheme(),
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.darkBackground,
   );
@@ -112,7 +80,7 @@ class _MyAppState extends State<MyApp> {
         "/": (context) => LoginScreen(),
         "/home": (context) => HomeScreen(),
         "/profile": (context) => ProfilePage(),
-       "/communities": (context) => const CommunitiesScreen(),
+        "/communities": (context) => const CommunitiesScreen(),
       },
     );
   }

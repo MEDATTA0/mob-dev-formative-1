@@ -46,19 +46,14 @@ class _ProfilePageState extends State<ProfilePage> {
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 300),
         pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionsBuilder:
-            (context, animation, secondaryAnimation, child) {
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
 
           final tween = Tween(
             begin: begin,
             end: end,
-          ).chain(
-            CurveTween(
-              curve: Curves.easeInOut,
-            ),
-          );
+          ).chain(CurveTween(curve: Curves.easeInOut));
 
           return SlideTransition(
             position: animation.drive(tween),
@@ -74,11 +69,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final theme = Theme.of(context);
 
     if (isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -98,15 +89,9 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           IconButton(
             onPressed: () {
-              _navigateToPage(
-                context,
-                const SettingsPage(),
-              );
+              _navigateToPage(context, const SettingsPage());
             },
-            icon: Icon(
-              Icons.settings,
-              color: theme.colorScheme.primary,
-            ),
+            icon: Icon(Icons.settings, color: theme.colorScheme.primary),
           ),
         ],
       ),
@@ -121,27 +106,24 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: theme.colorScheme.primary,
-                  width: 3,
-                ),
+                border: Border.all(color: theme.colorScheme.primary, width: 3),
               ),
               child: CircleAvatar(
                 radius: 55,
-                backgroundImage:
-                currentUser?.profilePictureUrl != null
-                ? NetworkImage(
-                  currentUser!.profilePictureUrl!,
-                  )
-                : null,
-  child:
-      currentUser?.profilePictureUrl == null
-          ? const Icon(
-              Icons.person,
-              size: 55,
-            )
-          : null,
-),
+                backgroundColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.15,
+                ),
+                backgroundImage: currentUser?.profilePictureUrl != null
+                    ? NetworkImage(currentUser!.profilePictureUrl!)
+                    : null,
+                child: currentUser?.profilePictureUrl == null
+                    ? Icon(
+                        Icons.person,
+                        size: 55,
+                        color: theme.colorScheme.primary,
+                      )
+                    : null,
+              ),
             ),
 
             const SizedBox(height: 15),
@@ -158,9 +140,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 5),
 
             Text(
-              currentUser?.campusName ??
-    currentUser?.campusId ??
-    "Campus",
+              currentUser?.campusName ?? currentUser?.campusId ?? "Campus",
               style: TextStyle(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 16,
@@ -170,22 +150,22 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 30),
 
             Row(
-  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  children: [
-    ProfileStat(
-      number: "${currentUser?.eventsCount ?? 0}",
-      label: "Events",
-    ),
-    ProfileStat(
-      number: "${currentUser?.communitiesCount ?? 0}",
-      label: "Communities",
-    ),
-    ProfileStat(
-      number: "${currentUser?.connectionsCount ?? 0}",
-      label: "Connections",
-    ),
-  ],
-),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ProfileStat(
+                  number: "${currentUser?.eventsCount ?? 0}",
+                  label: "Events",
+                ),
+                ProfileStat(
+                  number: "${currentUser?.communitiesCount ?? 0}",
+                  label: "Communities",
+                ),
+                ProfileStat(
+                  number: "${currentUser?.connectionsCount ?? 0}",
+                  label: "Connections",
+                ),
+              ],
+            ),
 
             const SizedBox(height: 30),
 
@@ -224,14 +204,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
                       onTap: () {
-  Session.logout();
+                        Session.logout();
 
-  Navigator.pushNamedAndRemoveUntil(
-    context,
-    '/',
-    (route) => false,
-  );
-},
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/',
+                          (route) => false,
+                        );
+                      },
                     ),
 
                     const Divider(height: 1),
@@ -240,10 +220,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.help_outline,
                       title: "Help & Support",
                       onTap: () {
-                        _navigateToPage(
-                          context,
-                          const SettingsPage(),
-                        );
+                        _navigateToPage(context, const SettingsPage());
                       },
                     ),
 
@@ -253,10 +230,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.logout,
                       title: "Logout",
                       onTap: () {
-                        _navigateToPage(
-                          context,
-                          const SettingsPage(),
-                        );
+                        _navigateToPage(context, const SettingsPage());
                       },
                     ),
                   ],
@@ -271,19 +245,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
       floatingActionButton: FloatingActionButton(
         backgroundColor: theme.colorScheme.primary,
-        foregroundColor: Colors.black,
+        foregroundColor: theme.colorScheme.onPrimary,
         elevation: 8,
         onPressed: () {
-          _navigateToPage(
-            context,
-            const SettingsPage(),
-          );
+          _navigateToPage(context, const SettingsPage());
         },
         child: const Icon(Icons.add),
       ),
 
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       bottomNavigationBar: BottomAppBar(
         color: theme.colorScheme.surface,
@@ -300,10 +270,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 label: "Home",
                 selected: false,
                 onTap: () {
-                  _navigateToPage(
-                    context,
-                    const HomeScreen(),
-                  );
+                  _navigateToPage(context, const HomeScreen());
                 },
               ),
 
@@ -312,10 +279,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 label: "Explore",
                 selected: false,
                 onTap: () {
-                  _navigateToPage(
-                    context,
-                    const HomeScreen(),
-                  );
+                  _navigateToPage(context, const HomeScreen());
                 },
               ),
 
@@ -326,10 +290,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 label: "Chats",
                 selected: false,
                 onTap: () {
-                  _navigateToPage(
-                    context,
-                    const ChatsScreen(),
-                  );
+                  _navigateToPage(context, const ChatsScreen());
                 },
               ),
 
@@ -351,11 +312,7 @@ class ProfileStat extends StatelessWidget {
   final String number;
   final String label;
 
-  const ProfileStat({
-    super.key,
-    required this.number,
-    required this.label,
-  });
+  const ProfileStat({super.key, required this.number, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -400,25 +357,13 @@ class ProfileMenuTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 4,
-      ),
-      leading: Icon(
-        icon,
-        color: theme.colorScheme.primary,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      leading: Icon(icon, color: theme.colorScheme.primary),
       title: Text(
         title,
-        style: TextStyle(
-          color: theme.colorScheme.onSurface,
-          fontSize: 16,
-        ),
+        style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
       ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: theme.colorScheme.primary,
-      ),
+      trailing: Icon(Icons.chevron_right, color: theme.colorScheme.primary),
       onTap: onTap,
     );
   }
@@ -453,20 +398,14 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
+            Icon(icon, color: color, size: 24),
             const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
                 color: color,
                 fontSize: 11,
-                fontWeight: selected
-                    ? FontWeight.bold
-                    : FontWeight.normal,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ],

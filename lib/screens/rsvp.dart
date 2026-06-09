@@ -37,17 +37,19 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
     }
   }
 
-  List<RSVP> get _userRsvps => _allUserRsvps.where((r) => _matchesTab(r.status)).toList();
+  List<RSVP> get _userRsvps =>
+      _allUserRsvps.where((r) => _matchesTab(r.status)).toList();
 
   bool _matchesTab(RSVPStatus status) {
     if (_selectedTab == 'Going') return status == RSVPStatus.going;
     return status == RSVPStatus.interested;
   }
 
-  Color _badgeColor(RSVPStatus status) {
+  Color _badgeColor(BuildContext context, RSVPStatus status) {
+    final theme = Theme.of(context);
     return status == RSVPStatus.going
-        ? const Color(0xFF2A9D6F)
-        : const Color(0xFFF5A623);
+        ? theme.colorScheme.secondary
+        : theme.colorScheme.primary;
   }
 
   String _badgeLabel(RSVPStatus status) {
@@ -61,19 +63,20 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F1B2D)),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'My RSVPs',
           style: TextStyle(
-            color: Color(0xFF0F1B2D),
+            color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
@@ -83,7 +86,11 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
       body: Column(
         children: [
           _buildTabToggle(),
-          Expanded(child: _loading ? const Center(child: CircularProgressIndicator()) : _buildList()),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _buildList(),
+          ),
         ],
       ),
       bottomNavigationBar: _buildBottomNav(),
@@ -91,12 +98,13 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
   }
 
   Widget _buildTabToggle() {
+    final theme = Theme.of(context);
     return Container(
-      color: Colors.white,
+      color: theme.colorScheme.surface,
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF0F2F5),
+          color: theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(30),
         ),
         padding: const EdgeInsets.all(4),
@@ -110,10 +118,15 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : Colors.transparent,
+                    color: isSelected
+                        ? theme.colorScheme.surface
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
                     border: isSelected
-                        ? Border.all(color: const Color(0xFFF5A623), width: 1.5)
+                        ? Border.all(
+                            color: theme.colorScheme.primary,
+                            width: 1.5,
+                          )
                         : null,
                     boxShadow: isSelected
                         ? [
@@ -121,7 +134,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
                               color: Colors.black.withValues(alpha: 0.07),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
-                            )
+                            ),
                           ]
                         : [],
                   ),
@@ -129,7 +142,9 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
                     tab,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: isSelected ? const Color(0xFFF5A623) : Colors.grey.shade500,
+                      color: isSelected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -144,6 +159,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
   }
 
   Widget _buildList() {
+    final theme = Theme.of(context);
     final rsvps = _userRsvps;
 
     if (rsvps.isEmpty) {
@@ -151,11 +167,18 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.event_busy_outlined, size: 52, color: Colors.grey.shade300),
+            Icon(
+              Icons.event_busy_outlined,
+              size: 52,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+            ),
             const SizedBox(height: 12),
             Text(
               'No $_selectedTab events yet',
-              style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                fontSize: 15,
+              ),
             ),
           ],
         ),
@@ -170,7 +193,8 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
         return FutureBuilder<Post?>(
           future: postStore.findById(rsvps[i].postId),
           builder: (context, snap) {
-            if (!snap.hasData || snap.data == null) return const SizedBox.shrink();
+            if (!snap.hasData || snap.data == null)
+              return const SizedBox.shrink();
             return _buildCard(rsvps[i], snap.data!);
           },
         );
@@ -179,16 +203,19 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
   }
 
   Widget _buildCard(RSVP rsvp, Post post) {
-    final color = _badgeColor(rsvp.status);
+    final theme = Theme.of(context);
+    final color = _badgeColor(context, rsvp.status);
     final label = _badgeLabel(rsvp.status);
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: theme.brightness == Brightness.dark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -218,7 +245,10 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
                 bottom: 0,
                 left: 0,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: const BorderRadius.only(
@@ -246,8 +276,8 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
                 children: [
                   Text(
                     post.title,
-                    style: const TextStyle(
-                      color: Color(0xFF0F1B2D),
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface,
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
                       height: 1.3,
@@ -258,7 +288,10 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
                   const SizedBox(height: 6),
                   Text(
                     '${_formatDate(post.startTime)} • ${post.location}',
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),
@@ -266,7 +299,11 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
           ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: Icon(Icons.chevron_right, color: Colors.grey.shade300, size: 20),
+            child: Icon(
+              Icons.chevron_right,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+              size: 20,
+            ),
           ),
         ],
       ),
@@ -278,40 +315,59 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> {
       width: 95,
       height: 95,
       color: color.withValues(alpha: 0.1),
-      child: Icon(Icons.event_outlined, color: color.withValues(alpha: 0.4), size: 28),
+      child: Icon(
+        Icons.event_outlined,
+        color: color.withValues(alpha: 0.4),
+        size: 28,
+      ),
     );
   }
 
   Widget _buildBottomNav() {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: theme.brightness == Brightness.dark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
         ],
       ),
       child: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFFF5A623),
-        unselectedItemColor: Colors.grey.shade400,
+        backgroundColor: theme.colorScheme.surface,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.colorScheme.onSurface.withValues(alpha: 0.4),
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         currentIndex: 4,
-        selectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+        selectedLabelStyle: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
         unselectedLabelStyle: const TextStyle(fontSize: 11),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Explore'),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle, size: 40, color: Color(0xFFF5A623)),
             label: '',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chats'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chats',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
         ],
       ),
     );

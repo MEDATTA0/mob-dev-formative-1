@@ -3,7 +3,6 @@ import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/components/custom_text_field.dart';
 import 'package:assignment1/components/custom_button.dart';
-import 'package:assignment1/models/session.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onLoginSuccess;
