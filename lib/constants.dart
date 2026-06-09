@@ -1,5 +1,13 @@
 import 'package:flutter/painting.dart';
 
+class AuthSession {
+  static final AuthSession _instance = AuthSession._internal();
+  factory AuthSession() => _instance;
+  AuthSession._internal();
+
+  String? loggedInEmail;
+}
+
 class AppColors {
   static const Color lightPrimary = Color(0xFFF59E0B);
   static const Color darkPrimary = Color(0xFFF59E0B);

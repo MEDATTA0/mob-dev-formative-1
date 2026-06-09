@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/components/custom_text_field.dart';
 import 'package:assignment1/components/custom_button.dart';
+import 'package:assignment1/models/session.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -51,6 +53,7 @@ class _LoginFormState extends State<LoginForm> {
       );
 
       if (user.password == password) {
+        AuthSession().loggedInEmail = user.email;
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -176,4 +179,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-

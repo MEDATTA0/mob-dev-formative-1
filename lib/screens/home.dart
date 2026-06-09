@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/screens/event_detail.dart';
 import 'package:assignment1/screens/rsvp.dart';
-import 'package:assignment1/screens/profile_page.dart';
 import 'package:assignment1/screens/chats_screen.dart';
+import 'package:assignment1/screens/profile_page.dart';
+import 'package:assignment1/screens/communities.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -62,7 +64,13 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _allPosts = allPosts.where((p) => p.isPublished).toList();
       _posts = _allPosts;
-      _currentUser = allUsers.isNotEmpty ? allUsers.first : null;
+      final loggedInEmail = AuthSession().loggedInEmail;
+      _currentUser = loggedInEmail != null
+          ? allUsers.firstWhere(
+              (u) => u.email.toLowerCase() == loggedInEmail.toLowerCase(),
+              orElse: () => allUsers.first,
+            )
+          : (allUsers.isNotEmpty ? allUsers.first : null);
     });
   }
 
@@ -112,16 +120,17 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       case 1:
         setState(() => _currentIndex = 1);
+        _navigateTo(const CommunitiesScreen());
         break;
       case 2:
         break;
       case 3:
         setState(() => _currentIndex = 3);
-        _navigateTo(const ChatsScreen());
+        _navigateTo(const MyRsvpsScreen());
         break;
       case 4:
         setState(() => _currentIndex = 4);
-        _navigateTo(const ProfilePage());
+        _navigateTo(const ChatsScreen());
         break;
     }
   }
@@ -666,10 +675,7 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.grey.shade400,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
+        selectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(fontSize: 11),
         items: const [
           BottomNavigationBarItem(
@@ -677,23 +683,29 @@ class _HomeScreenState extends State<HomeScreen> {
             activeIcon: Icon(Icons.home),
             label: 'Home',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Explore'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle, size: 40, color: Color(0xFFF5A623)),
+            icon: Icon(Icons.groups_outlined),
+            activeIcon: Icon(Icons.groups),
+            label: 'Communities',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle, size: 36, color: Color(0xFFF5A623)),
             label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event_available_outlined),
+            activeIcon: Icon(Icons.event_available),
+            label: 'RSVPs',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             activeIcon: Icon(Icons.chat_bubble),
             label: 'Chats',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
         ],
       ),
     );
   }
+
 }
+

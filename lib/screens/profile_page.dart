@@ -1,8 +1,44 @@
+import 'package:assignment1/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:assignment1/models/index.dart';
+import 'package:assignment1/models/session.dart';
 import 'settings_page.dart';
+import 'home.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  User? currentUser;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final userId = Session.currentUserId;
+
+    if (userId == null) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    final user = await userStore.findById(userId);
+
+    setState(() {
+      currentUser = user;
+      isLoading = false;
+    });
+  }
 
   void _navigateToPage(BuildContext context, Widget page) {
     Navigator.push(
@@ -36,6 +72,14 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -82,18 +126,28 @@ class ProfilePage extends StatelessWidget {
                   width: 3,
                 ),
               ),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 55,
-                backgroundImage: NetworkImage(
-                  "https://picsum.photos/200",
-                ),
-              ),
+                backgroundImage:
+                currentUser?.profilePictureUrl != null
+                ? NetworkImage(
+                  currentUser!.profilePictureUrl!,
+                  )
+                : null,
+  child:
+      currentUser?.profilePictureUrl == null
+          ? const Icon(
+              Icons.person,
+              size: 55,
+            )
+          : null,
+),
             ),
 
             const SizedBox(height: 15),
 
             Text(
-              "John Doe",
+              currentUser?.fullName ?? "Unknown User",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -104,7 +158,9 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 5),
 
             Text(
-              "Kigali Campus",
+              currentUser?.campusName ??
+    currentUser?.campusId ??
+    "Campus",
               style: TextStyle(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 16,
@@ -113,23 +169,23 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ProfileStat(
-                  number: "23",
-                  label: "Events",
-                ),
-                ProfileStat(
-                  number: "5",
-                  label: "Communities",
-                ),
-                ProfileStat(
-                  number: "87",
-                  label: "Connections",
-                ),
-              ],
-            ),
+            Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    ProfileStat(
+      number: "${currentUser?.eventsCount ?? 0}",
+      label: "Events",
+    ),
+    ProfileStat(
+      number: "${currentUser?.communitiesCount ?? 0}",
+      label: "Communities",
+    ),
+    ProfileStat(
+      number: "${currentUser?.connectionsCount ?? 0}",
+      label: "Connections",
+    ),
+  ],
+),
 
             const SizedBox(height: 30),
 
@@ -168,11 +224,14 @@ class ProfilePage extends StatelessWidget {
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
                       onTap: () {
-                        _navigateToPage(
-                          context,
-                          const SettingsPage(),
-                        );
-                      },
+  Session.logout();
+
+  Navigator.pushNamedAndRemoveUntil(
+    context,
+    '/',
+    (route) => false,
+  );
+},
                     ),
 
                     const Divider(height: 1),
@@ -243,7 +302,7 @@ class ProfilePage extends StatelessWidget {
                 onTap: () {
                   _navigateToPage(
                     context,
-                    const SettingsPage(),
+                    const HomeScreen(),
                   );
                 },
               ),
@@ -255,7 +314,7 @@ class ProfilePage extends StatelessWidget {
                 onTap: () {
                   _navigateToPage(
                     context,
-                    const SettingsPage(),
+                    const HomeScreen(),
                   );
                 },
               ),
@@ -269,7 +328,7 @@ class ProfilePage extends StatelessWidget {
                 onTap: () {
                   _navigateToPage(
                     context,
-                    const SettingsPage(),
+                    const ChatsScreen(),
                   );
                 },
               ),
