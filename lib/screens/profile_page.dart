@@ -223,7 +223,29 @@ class _ProfilePageState extends State<ProfilePage> {
                     ProfileMenuTile(
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
-                      onTap: () {
+                       onTap: () {
+                        _navigateToPage(
+                          context,
+                          const SettingsPage(),
+                        );
+                      },
+                      
+                    ),
+
+                    const Divider(height: 1),
+
+                    ProfileMenuTile(
+                      icon: Icons.help_outline,
+                      title: "Help & Support",
+                     
+                    ),
+
+                    const Divider(height: 1),
+
+                    ProfileMenuTile(
+                      icon: Icons.logout,
+                      title: "Logout",
+                     onTap: () {
   Session.logout();
 
   Navigator.pushNamedAndRemoveUntil(
@@ -232,32 +254,6 @@ class _ProfilePageState extends State<ProfilePage> {
     (route) => false,
   );
 },
-                    ),
-
-                    const Divider(height: 1),
-
-                    ProfileMenuTile(
-                      icon: Icons.help_outline,
-                      title: "Help & Support",
-                      onTap: () {
-                        _navigateToPage(
-                          context,
-                          const SettingsPage(),
-                        );
-                      },
-                    ),
-
-                    const Divider(height: 1),
-
-                    ProfileMenuTile(
-                      icon: Icons.logout,
-                      title: "Logout",
-                      onTap: () {
-                        _navigateToPage(
-                          context,
-                          const SettingsPage(),
-                        );
-                      },
                     ),
                   ],
                 ),
