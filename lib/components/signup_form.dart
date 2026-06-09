@@ -195,17 +195,11 @@ class _SignupFormState extends State<SignupForm> {
             items: const [
               DropdownMenuItem(
                 value: 'Kigali Campus',
-                child: Text(
-                  'Kigali Campus',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text('Kigali Campus'),
               ),
               DropdownMenuItem(
                 value: 'Mauritius Campus',
-                child: Text(
-                  'Mauritius Campus',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text('Mauritius Campus'),
               ),
             ],
             onChanged: (value) {

@@ -13,9 +13,7 @@ class HelpPage extends StatelessWidget {
           backgroundColor: theme.colorScheme.surface,
           title: Text(
             "Contact Support",
-            style: TextStyle(
-              color: theme.colorScheme.onSurface,
-            ),
+            style: TextStyle(color: theme.colorScheme.onSurface),
           ),
           content: Text(
             "Email: support@aluconnect.com\n\nResponse time: 24-48 hours.",
@@ -28,9 +26,7 @@ class HelpPage extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
               child: Text(
                 "Close",
-                style: TextStyle(
-                  color: theme.colorScheme.primary,
-                ),
+                style: TextStyle(color: theme.colorScheme.primary),
               ),
             ),
           ],
@@ -49,9 +45,7 @@ class HelpPage extends StatelessWidget {
     return Card(
       color: theme.colorScheme.surface,
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: ExpansionTile(
         iconColor: theme.colorScheme.primary,
         collapsedIconColor: theme.colorScheme.primary,
@@ -64,12 +58,7 @@ class HelpPage extends StatelessWidget {
         ),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              16,
-              0,
-              16,
-              16,
-            ),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Text(
               answer,
               style: TextStyle(
@@ -88,9 +77,16 @@ class HelpPage extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
+        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
+        title: Text(
+          "Help Center",
+          style: TextStyle(color: theme.colorScheme.onSurface),
+        ),
         centerTitle: true,
-        title: const Text("Help Center"),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -130,8 +126,7 @@ class HelpPage extends StatelessWidget {
           _buildFaqCard(
             context,
             question: "How do I change my password?",
-            answer:
-                "Go to Settings and select Change Password.",
+            answer: "Go to Settings and select Change Password.",
           ),
 
           _buildFaqCard(
@@ -188,9 +183,7 @@ class HelpPage extends StatelessWidget {
                       icon: const Icon(Icons.email),
                       label: const Text(
                         "Contact Support",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       onPressed: () => _contactSupport(context),
                     ),

@@ -19,10 +19,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.only(
-        top: 20,
-        bottom: 10,
-      ),
+      padding: const EdgeInsets.only(top: 20, bottom: 10),
       child: Text(
         title,
         style: TextStyle(
@@ -39,19 +36,15 @@ class _PrivacyPageState extends State<PrivacyPage> {
 
     return Card(
       color: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: child,
     );
   }
 
   void saveSettings() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Privacy settings updated"),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Privacy settings updated")));
 
     Navigator.pop(context);
   }
@@ -65,14 +58,10 @@ class _PrivacyPageState extends State<PrivacyPage> {
       appBar: AppBar(
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        iconTheme: IconThemeData(
-          color: theme.colorScheme.primary,
-        ),
+        iconTheme: IconThemeData(color: theme.colorScheme.primary),
         title: Text(
           "Privacy Settings",
-          style: TextStyle(
-            color: theme.colorScheme.onSurface,
-          ),
+          style: TextStyle(color: theme.colorScheme.onSurface),
         ),
       ),
       body: SingleChildScrollView(
@@ -105,8 +94,9 @@ class _PrivacyPageState extends State<PrivacyPage> {
                           subtitle: Text(
                             "Anyone can view your profile",
                             style: TextStyle(
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.7),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                           value: "Public",
@@ -122,8 +112,9 @@ class _PrivacyPageState extends State<PrivacyPage> {
                           subtitle: Text(
                             "Only ALU students can view your profile",
                             style: TextStyle(
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.7),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                           value: "Campus Only",
@@ -139,8 +130,9 @@ class _PrivacyPageState extends State<PrivacyPage> {
                           subtitle: Text(
                             "Only approved connections can view your profile",
                             style: TextStyle(
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.7),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                           value: "Private",
@@ -163,9 +155,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
                     value: allowMessages,
                     title: Text(
                       "Allow Direct Messages",
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface,
-                      ),
+                      style: TextStyle(color: theme.colorScheme.onSurface),
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -178,9 +168,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
                     value: allowConnectionRequests,
                     title: Text(
                       "Allow Connection Requests",
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface,
-                      ),
+                      style: TextStyle(color: theme.colorScheme.onSurface),
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -203,9 +191,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
                     value: showEmail,
                     title: Text(
                       "Display Email Address",
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface,
-                      ),
+                      style: TextStyle(color: theme.colorScheme.onSurface),
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -218,9 +204,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
                     value: showCampus,
                     title: Text(
                       "Display Campus",
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface,
-                      ),
+                      style: TextStyle(color: theme.colorScheme.onSurface),
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -240,7 +224,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: Colors.black,
+                  foregroundColor: theme.colorScheme.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -248,9 +232,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 onPressed: saveSettings,
                 child: const Text(
                   "Save Settings",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ),
