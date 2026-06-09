@@ -138,6 +138,21 @@ class MessageStore implements Store<Message> {
     return list;
   }
 
+  Future<Map<int, Message>> getLastMessageOfEachChat() async {
+    final map = <int, Message>{};
+    for (var key in _box.keys) {
+      final data = _box.get(key);
+      if (data != null) {
+        final msg = Message.fromMap(Map<String, dynamic>.from(data));
+        final existing = map[msg.chatId];
+        if (existing == null || msg.timestamp.isAfter(existing.timestamp)) {
+          map[msg.chatId] = msg;
+        }
+      }
+    }
+    return map;
+  }
+
   @override
   Future<void> loadDummy() async {
     if (_box.isNotEmpty) return;
