@@ -476,25 +476,27 @@ class _ChatsScreenState extends State<ChatsScreen> {
           ),
         ],
       ),
-      body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFF5A623)),
-            )
-          : _chats.isEmpty
-              ? Center(
-                  child: Text(
-                    'No conversations yet',
-                    style:
-                        TextStyle(color: Colors.grey.shade400, fontSize: 15),
+      body: SafeArea(
+        child: _loading
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFFF5A623)),
+              )
+            : _chats.isEmpty
+                ? Center(
+                    child: Text(
+                      'No conversations yet',
+                      style:
+                          TextStyle(color: Colors.grey.shade400, fontSize: 15),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: _chats.length,
+                    separatorBuilder: (_, _) =>
+                        const Divider(height: 1, indent: 72, endIndent: 16),
+                    itemBuilder: (context, i) => _buildChatTile(_chats[i]),
                   ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: _chats.length,
-                  separatorBuilder: (_, _) =>
-                      const Divider(height: 1, indent: 72, endIndent: 16),
-                  itemBuilder: (context, i) => _buildChatTile(_chats[i]),
-                ),
+      ),
     );
   }
 
