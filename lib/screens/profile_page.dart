@@ -236,68 +236,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
-
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
-        elevation: 8,
-        onPressed: () {
-          _navigateToPage(context, const SettingsPage());
-        },
-        child: const Icon(Icons.add),
-      ),
-
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
-      bottomNavigationBar: BottomAppBar(
-        color: theme.colorScheme.surface,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        elevation: 12,
-        child: SizedBox(
-          height: 70,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavItem(
-                icon: Icons.home_outlined,
-                label: "Home",
-                selected: false,
-                onTap: () {
-                  _navigateToPage(context, const HomeScreen());
-                },
-              ),
-
-              _NavItem(
-                icon: Icons.search,
-                label: "Explore",
-                selected: false,
-                onTap: () {
-                  _navigateToPage(context, const HomeScreen());
-                },
-              ),
-
-              const SizedBox(width: 40),
-
-              _NavItem(
-                icon: Icons.chat_bubble_outline,
-                label: "Chats",
-                selected: false,
-                onTap: () {
-                  _navigateToPage(context, const ChatsScreen());
-                },
-              ),
-
-              _NavItem(
-                icon: Icons.person,
-                label: "Profile",
-                selected: true,
-                onTap: () {},
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
@@ -359,52 +297,6 @@ class ProfileMenuTile extends StatelessWidget {
       ),
       trailing: Icon(Icons.chevron_right, color: theme.colorScheme.primary),
       onTap: onTap,
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final color = selected
-        ? theme.colorScheme.primary
-        : theme.colorScheme.onSurface.withValues(alpha: 0.7);
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: SizedBox(
-        width: 60,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
