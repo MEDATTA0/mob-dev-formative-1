@@ -6,6 +6,7 @@ import 'package:assignment1/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:assignment1/screens/communities.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -111,6 +112,7 @@ class _MyAppState extends State<MyApp> {
         "/": (context) => LoginScreen(),
         "/home": (context) => HomeScreen(),
         "/profile": (context) => ProfilePage(),
+       "/communities": (context) => const CommunitiesScreen(),
       },
     );
   }

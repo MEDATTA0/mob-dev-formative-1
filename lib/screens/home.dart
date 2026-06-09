@@ -7,6 +7,7 @@ import 'package:assignment1/screens/rsvp.dart';
 import 'package:assignment1/screens/profile_page.dart';
 import 'package:assignment1/screens/chats_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:assignment1/screens/communities.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -118,6 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => _currentIndex = 0);
         break;
       case 1:
+        setState(() => _currentIndex = 1);
+        _navigateTo(const CommunitiesScreen());
         break;
       case 2:
         setState(() => _currentIndex = 2);
