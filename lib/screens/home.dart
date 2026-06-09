@@ -118,17 +118,14 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => _currentIndex = 0);
         break;
       case 1:
-        setState(() => _currentIndex = 1);
         break;
       case 2:
+        setState(() => _currentIndex = 2);
+        _navigateTo(const ChatsScreen());
         break;
       case 3:
         setState(() => _currentIndex = 3);
-        _navigateTo(const ChatsScreen());
-        break;
-      case 4:
-        setState(() => _currentIndex = 4);
-        _navigateTo(const ProfilePage());
+        _navigateTo(const MyRsvpsScreen());
         break;
     }
   }
@@ -684,7 +681,6 @@ class _HomeScreenState extends State<HomeScreen> {
             activeIcon: Icon(Icons.home),
             label: 'Home',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Explore'),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle, size: 40, color: Color(0xFFF5A623)),
             label: '',
@@ -695,9 +691,9 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Chats',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.event_available_outlined),
+            activeIcon: Icon(Icons.event_available),
+            label: 'RSVPs',
           ),
         ],
       ),
