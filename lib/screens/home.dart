@@ -23,6 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Post> _posts = [];
   User? _currentUser;
 
+  final FocusNode _searchFocus = FocusNode();
+  final TextEditingController _searchController = TextEditingController();
+  bool _searchFocused = false;
+
   final List<Map<String, dynamic>> _categories = [
     {
       'label': 'All',
@@ -55,6 +59,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadData();
+    _searchFocus.addListener(() {
+      setState(() => _searchFocused = _searchFocus.hasFocus);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocus.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -75,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _navigateTo(Widget screen) {
+    _searchFocus.unfocus();
     Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
@@ -141,13 +156,14 @@ class _HomeScreenState extends State<HomeScreen> {
     double? width,
     double? height,
     BoxFit fit = BoxFit.cover,
-    Color placeholderColor = const Color(0xFFE8EAF0),
+    Color? placeholderColor,
   }) {
+    final resolvedPlaceholder = placeholderColor ?? Theme.of(context).colorScheme.surface;
     if (url == null || url.isEmpty) {
       return Container(
         width: width,
         height: height,
-        color: placeholderColor,
+        color: resolvedPlaceholder,
         child: Icon(
           Icons.image_outlined,
           color: Colors.grey.shade400,
@@ -166,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
         errorBuilder: (_, _, _) => Container(
           width: width,
           height: height,
-          color: placeholderColor,
+          color: resolvedPlaceholder,
           child: Icon(
             Icons.image_outlined,
             color: Colors.grey.shade400,
@@ -185,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
       placeholder: (_, _) => Container(
         width: width,
         height: height,
-        color: placeholderColor,
+        color: resolvedPlaceholder,
         child: const Center(
           child: CircularProgressIndicator(
             strokeWidth: 2,
@@ -196,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
       errorWidget: (_, _, _) => Container(
         width: width,
         height: height,
-        color: placeholderColor,
+        color: resolvedPlaceholder,
         child: Icon(
           Icons.image_outlined,
           color: Colors.grey.shade400,
@@ -211,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final firstName = _currentUser?.fullName.split(' ').first ?? 'there';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -238,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(32),
                     child: Text(
                       'No posts yet',
-                      style: TextStyle(color: Colors.grey.shade400),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
                     ),
                   ),
                 )
@@ -269,10 +285,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   'Hi, $firstName! ',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F1B2D),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const Text('👋', style: TextStyle(fontSize: 22)),
@@ -288,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () => _navigateTo(const ProfilePage()),
           child: CircleAvatar(
             radius: 24,
-            backgroundColor: Colors.grey.shade200,
+            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
             backgroundImage: _currentUser?.profilePictureUrl != null
                 ? NetworkImage(_currentUser!.profilePictureUrl!)
                 : null,
@@ -309,28 +325,50 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSearchBar() {
-    return Container(
+    const amber = Color(0xFFF5A623);
+    final surface = Theme.of(context).colorScheme.surface;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surface,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _searchFocused ? amber : Colors.transparent,
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: _searchFocused
+                ? amber.withValues(alpha: 0.18)
+                : Colors.black.withValues(alpha: 0.05),
+            blurRadius: _searchFocused ? 18 : 10,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
-          Icon(Icons.search, color: Colors.grey.shade400, size: 20),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Icon(
+              Icons.search,
+              key: ValueKey(_searchFocused),
+              color: _searchFocused ? amber : onSurface.withValues(alpha: 0.4),
+              size: 20,
+            ),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
+              focusNode: _searchFocus,
+              controller: _searchController,
+              style: TextStyle(color: onSurface),
               decoration: InputDecoration(
                 hintText: 'Search opportunities, events, people...',
-                hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                hintStyle: TextStyle(color: onSurface.withValues(alpha: 0.4), fontSize: 13),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 14),
               ),
@@ -350,6 +388,19 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
+          if (_searchController.text.isNotEmpty)
+            GestureDetector(
+              onTap: () {
+                _searchController.clear();
+                setState(() => _posts = _allPosts);
+                _searchFocus.unfocus();
+              },
+              child: AnimatedOpacity(
+                opacity: _searchController.text.isNotEmpty ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 150),
+                child: Icon(Icons.close_rounded, color: onSurface.withValues(alpha: 0.4), size: 18),
+              ),
+            ),
         ],
       ),
     );
@@ -391,8 +442,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontSize: 11,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     color: isSelected
-                        ? const Color(0xFF0F1B2D)
-                        : Colors.grey.shade500,
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -409,10 +460,10 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0F1B2D),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         GestureDetector(
@@ -560,7 +611,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () => _navigateTo(EventDetailScreen(post: post)),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -593,10 +644,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: Text(
                             post.title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
-                              color: Color(0xFF0F1B2D),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -615,14 +666,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ? 'Apply by ${_formatDate(post.deadline)}'
                           : _formatDate(post.startTime),
                       style: TextStyle(
-                        color: Colors.grey.shade500,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                         fontSize: 12,
                       ),
                     ),
                     Text(
                       post.location,
                       style: TextStyle(
-                        color: Colors.grey.shade400,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                         fontSize: 12,
                       ),
                     ),
@@ -656,9 +707,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomNav() {
+    final navBg = Theme.of(context).colorScheme.surface;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: navBg,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -670,9 +722,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onBottomNavTap,
-        backgroundColor: Colors.white,
+        backgroundColor: navBg,
         selectedItemColor: const Color(0xFFF5A623),
-        unselectedItemColor: Colors.grey.shade400,
+        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         selectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),

@@ -9,8 +9,6 @@ class CommunitiesScreen extends StatefulWidget {
 }
 
 class _CommunitiesScreenState extends State<CommunitiesScreen> {
-  static const _bg = Color(0xFFF8F9FB);
-  static const _navy = Color(0xFF0F1B2D);
   static const _amber = Color(0xFFF5A623);
   static const _green = Color(0xFF2A9D6F);
 
@@ -43,13 +41,13 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.groups_outlined, size: 52, color: Colors.grey.shade300),
+          Icon(Icons.groups_outlined, size: 52, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25)),
           const SizedBox(height: 12),
           Text(
             _tab == 'My Clubs'
                 ? "You haven't joined any clubs yet"
                 : 'No clubs available',
-            style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 15),
           ),
         ],
       ),
@@ -62,7 +60,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -86,8 +84,8 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               children: [
                 Text(
                   club.name,
-                  style: const TextStyle(
-                    color: _navy,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
@@ -95,7 +93,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '${club.memberCount} members',
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
                 ),
               ],
             ),
@@ -177,12 +175,14 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
 
   Widget _buildTabs() {
+    final surface = Theme.of(context).colorScheme.surface;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
-      color: Colors.white,
+      color: surface,
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF0F2F5),
+          color: onSurface.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(30),
         ),
         padding: const EdgeInsets.all(4),
@@ -196,7 +196,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: selected ? Colors.white : Colors.transparent,
+                    color: selected ? surface : Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
                     border: selected
                         ? Border.all(color: _amber, width: 1.5)
@@ -206,7 +206,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                     tab,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: selected ? _amber : Colors.grey.shade500,
+                      color: selected ? _amber : onSurface.withValues(alpha: 0.5),
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -230,10 +230,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: _navy,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0.5,
         title: const Text('Communities'),
       ),

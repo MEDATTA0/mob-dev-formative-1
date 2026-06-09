@@ -135,10 +135,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(
-        color: theme.colorScheme.onSurface.withValues(alpha: enabled ? 0.7 : 0.4),
+        color: theme.colorScheme.onSurface.withValues(alpha: enabled ? 0.7 : 1.0),
       ),
       filled: true,
-      fillColor: enabled ? theme.colorScheme.surface : Colors.grey.shade100,
+      fillColor: theme.colorScheme.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
         borderSide: BorderSide.none,
@@ -270,7 +270,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               TextFormField(
                 controller: _emailController,
                 enabled: false,
-                style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
+                style: TextStyle(color: theme.colorScheme.onSurface),
                 decoration: _fieldDecoration('Email', enabled: false),
               ),
               const SizedBox(height: 16),

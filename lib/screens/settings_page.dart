@@ -15,7 +15,16 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool pushNotifications = true;
   bool emailNotifications = true;
-  bool darkMode = true;
+  late bool darkMode;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final brightness = Theme.of(context).brightness;
+      setState(() => darkMode = brightness == Brightness.dark);
+    });
+  }
 
   String selectedLanguage = "English";
 

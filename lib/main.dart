@@ -46,6 +46,23 @@ class _MyAppState extends State<MyApp> {
       onPrimary: Color(0xFF0F172A),
       onSurface: AppColors.lightText,
     ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFFF5F5F5),
+      labelStyle: const TextStyle(color: Color(0xFF666666)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+    ),
     textTheme: TextTheme(
       bodyLarge: GoogleFonts.poppins(color: AppColors.lightText),
       bodyMedium: GoogleFonts.poppins(color: AppColors.lightText),
@@ -76,6 +93,23 @@ class _MyAppState extends State<MyApp> {
       error: Color(0xFFEF4444),
       onPrimary: Color(0xFF0F172A),
       onSurface: AppColors.darkText,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFF1E293B),
+      labelStyle: const TextStyle(color: Color(0xFFAAAAAA)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
     ),
     textTheme: TextTheme(
       bodyLarge: GoogleFonts.poppins(color: AppColors.darkText),
