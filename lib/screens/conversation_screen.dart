@@ -92,14 +92,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios,
-              color: Color(0xFF0F1B2D), size: 20),
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: theme.colorScheme.onSurface,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         titleSpacing: 0,
@@ -107,12 +111,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundColor:
-                  const Color(0xFFF5A623).withValues(alpha: 0.15),
+              backgroundColor: theme.colorScheme.primary.withValues(
+                alpha: 0.15,
+              ),
               child: Text(
                 widget.chat.name[0].toUpperCase(),
-                style: const TextStyle(
-                  color: Color(0xFFF5A623),
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
@@ -124,10 +129,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
               children: [
                 Text(
                   widget.chat.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F1B2D),
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 if (widget.chat.isGroupChat)
@@ -135,7 +140,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     '${widget.chat.participantIds.length} members',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey.shade500,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
               ],
@@ -145,8 +150,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ),
       body: SafeArea(
         child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFFF5A623)),
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: theme.colorScheme.primary,
+                ),
               )
             : Column(
                 children: [
@@ -159,11 +166,15 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Widget _buildMessageList() {
+    final theme = Theme.of(context);
     if (_messages.isEmpty) {
       return Center(
         child: Text(
           'No messages yet. Say hello!',
-          style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+          style: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            fontSize: 15,
+          ),
         ),
       );
     }
@@ -176,23 +187,26 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Widget _buildBubble(Message msg) {
+    final theme = Theme.of(context);
     final mine = _isMine(msg);
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
-        mainAxisAlignment:
-            mine ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: mine
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!mine) ...[
             CircleAvatar(
               radius: 14,
-              backgroundColor:
-                  const Color(0xFFF5A623).withValues(alpha: 0.15),
+              backgroundColor: theme.colorScheme.primary.withValues(
+                alpha: 0.15,
+              ),
               child: Text(
                 _senderFirstName(msg.senderId)[0].toUpperCase(),
-                style: const TextStyle(
-                  color: Color(0xFFF5A623),
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                 ),
@@ -205,10 +219,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
               maxWidth: MediaQuery.of(context).size.width * 0.65,
             ),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: mine ? const Color(0xFFF5A623) : Colors.white,
+                color: mine
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.surface,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
@@ -231,10 +246,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       padding: const EdgeInsets.only(bottom: 3),
                       child: Text(
                         _senderFirstName(msg.senderId),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFFF5A623),
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                     ),
@@ -242,7 +257,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     msg.contentText,
                     style: TextStyle(
                       fontSize: 14,
-                      color: mine ? Colors.white : const Color(0xFF0F1B2D),
+                      color: mine
+                          ? theme.colorScheme.onPrimary
+                          : theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -251,8 +268,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     style: TextStyle(
                       fontSize: 10,
                       color: mine
-                          ? Colors.white.withValues(alpha: 0.7)
-                          : Colors.grey.shade400,
+                          ? theme.colorScheme.onPrimary.withValues(alpha: 0.7)
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.4),
                     ),
                   ),
                 ],
@@ -266,10 +283,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Widget _buildInputBar() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -284,20 +302,23 @@ class _ConversationScreenState extends State<ConversationScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FB),
+                color: theme.scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: TextField(
                 controller: _controller,
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontSize: 14,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Type a message...',
                   hintStyle: TextStyle(
-                    color: Colors.grey.shade400,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                     fontSize: 14,
                   ),
                   border: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 onSubmitted: (_) => _sendMessage(),
@@ -310,13 +331,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
             child: Container(
               width: 44,
               height: 44,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF5A623),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.send_rounded,
-                color: Colors.white,
+                color: theme.colorScheme.onPrimary,
                 size: 20,
               ),
             ),

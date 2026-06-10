@@ -10,9 +10,7 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
 
-  final nameController = TextEditingController(
-    text: "John Doe",
-  );
+  final nameController = TextEditingController(text: "John Doe");
 
   final emailController = TextEditingController(
     text: "john.doe@alustudent.com",
@@ -24,10 +22,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   String selectedCampus = "Kigali";
 
-  final campuses = [
-    "Kigali",
-    "Mauritius",
-  ];
+  final campuses = ["Kigali", "Mauritius"];
 
   @override
   void dispose() {
@@ -37,10 +32,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.dispose();
   }
 
-  InputDecoration fieldDecoration(
-    BuildContext context,
-    String label,
-  ) {
+  InputDecoration fieldDecoration(BuildContext context, String label) {
     final theme = Theme.of(context);
 
     return InputDecoration(
@@ -60,10 +52,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide(
-          color: theme.colorScheme.primary,
-          width: 2,
-        ),
+        borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
       ),
     );
   }
@@ -71,9 +60,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void saveProfile() {
     if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Profile updated successfully"),
-        ),
+        const SnackBar(content: Text("Profile updated successfully")),
       );
 
       Navigator.pop(context);
@@ -89,14 +76,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        iconTheme: IconThemeData(
-          color: theme.colorScheme.primary,
-        ),
+        iconTheme: IconThemeData(color: theme.colorScheme.primary),
         title: Text(
           "Edit Profile",
-          style: TextStyle(
-            color: theme.colorScheme.onSurface,
-          ),
+          style: TextStyle(color: theme.colorScheme.onSurface),
         ),
       ),
       body: SingleChildScrollView(
@@ -130,16 +113,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.camera_alt,
-                        color: Colors.black,
+                        color: theme.colorScheme.onPrimary,
                       ),
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text(
-                              "Image picker coming soon",
-                            ),
+                            content: Text("Image picker coming soon"),
                           ),
                         );
                       },
@@ -152,13 +133,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               TextFormField(
                 controller: nameController,
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
-                ),
-                decoration: fieldDecoration(
-                  context,
-                  "Full Name",
-                ),
+                style: TextStyle(color: theme.colorScheme.onSurface),
+                decoration: fieldDecoration(context, "Full Name"),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Name is required";
@@ -171,13 +147,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               TextFormField(
                 controller: emailController,
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
-                ),
-                decoration: fieldDecoration(
-                  context,
-                  "Email",
-                ),
+                style: TextStyle(color: theme.colorScheme.onSurface),
+                decoration: fieldDecoration(context, "Email"),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Email is required";
@@ -191,21 +162,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
               DropdownButtonFormField<String>(
                 initialValue: selectedCampus,
                 dropdownColor: theme.colorScheme.surface,
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
-                ),
-                decoration: fieldDecoration(
-                  context,
-                  "Campus",
-                ),
+                style: TextStyle(color: theme.colorScheme.onSurface),
+                decoration: fieldDecoration(context, "Campus"),
                 items: campuses.map((campus) {
                   return DropdownMenuItem<String>(
                     value: campus,
                     child: Text(
                       campus,
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface,
-                      ),
+                      style: TextStyle(color: theme.colorScheme.onSurface),
                     ),
                   );
                 }).toList(),
@@ -221,13 +185,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               TextFormField(
                 controller: bioController,
                 maxLines: 4,
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
-                ),
-                decoration: fieldDecoration(
-                  context,
-                  "Bio",
-                ),
+                style: TextStyle(color: theme.colorScheme.onSurface),
+                decoration: fieldDecoration(context, "Bio"),
               ),
 
               const SizedBox(height: 30),
@@ -238,7 +197,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: Colors.black,
+                    foregroundColor: theme.colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -246,9 +205,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   onPressed: saveProfile,
                   child: const Text(
                     "Save Changes",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

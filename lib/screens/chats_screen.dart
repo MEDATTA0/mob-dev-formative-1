@@ -69,9 +69,10 @@ class _ChatsScreenState extends State<ChatsScreen> {
   // ── Create conversation ────────────────────────────────────
 
   void _showNewConversationSheet() {
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -85,12 +86,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
               height: 4,
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -98,7 +99,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F1B2D),
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -108,25 +109,28 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5A623).withValues(alpha: 0.12),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.person_outline,
-                  color: Color(0xFFF5A623),
+                  color: theme.colorScheme.primary,
                   size: 22,
                 ),
               ),
-              title: const Text(
+              title: Text(
                 'Direct Message',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF0F1B2D),
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               subtitle: Text(
                 'Message someone directly',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontSize: 12,
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -138,25 +142,28 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5A623).withValues(alpha: 0.12),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.group_outlined,
-                  color: Color(0xFFF5A623),
+                  color: theme.colorScheme.primary,
                   size: 22,
                 ),
               ),
-              title: const Text(
+              title: Text(
                 'New Group',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF0F1B2D),
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               subtitle: Text(
                 'Create a group conversation',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontSize: 12,
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -171,13 +178,14 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   void _showDirectMessageSheet() {
+    final theme = Theme.of(context);
     final others = _usersById.values
         .where((u) => u.id != _currentUser?.id)
         .toList();
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -189,12 +197,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
             height: 4,
             margin: const EdgeInsets.only(top: 12, bottom: 4),
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -202,7 +210,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F1B2D),
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ),
@@ -212,7 +220,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
               padding: const EdgeInsets.all(24),
               child: Text(
                 'No other users to message',
-                style: TextStyle(color: Colors.grey.shade400),
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                ),
               ),
             )
           else
@@ -220,29 +230,31 @@ class _ChatsScreenState extends State<ChatsScreen> {
               (user) => ListTile(
                 leading: CircleAvatar(
                   radius: 22,
-                  backgroundColor: const Color(
-                    0xFFF5A623,
-                  ).withValues(alpha: 0.15),
+                  backgroundColor: theme.colorScheme.primary.withValues(
+                    alpha: 0.15,
+                  ),
                   child: Text(
                     user.fullName[0].toUpperCase(),
-                    style: const TextStyle(
-                      color: Color(0xFFF5A623),
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 title: Text(
                   user.fullName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF0F1B2D),
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 subtitle: user.headline != null
                     ? Text(
                         user.headline!,
                         style: TextStyle(
-                          color: Colors.grey.shade500,
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                           fontSize: 12,
                         ),
                       )
@@ -260,6 +272,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   void _showNewGroupSheet() {
+    final theme = Theme.of(context);
     final nameController = TextEditingController();
     final selected = <User>{};
     final others = _usersById.values
@@ -268,7 +281,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -286,12 +299,15 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 height: 4,
                 margin: const EdgeInsets.only(top: 12, bottom: 4),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -299,7 +315,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F1B2D),
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -309,15 +325,21 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8F9FB),
+                    color: theme.scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: TextField(
                     controller: nameController,
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface,
+                      fontSize: 14,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Group name',
                       hintStyle: TextStyle(
-                        color: Colors.grey.shade400,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.4,
+                        ),
                         fontSize: 14,
                       ),
                       border: InputBorder.none,
@@ -328,8 +350,8 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -337,7 +359,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F1B2D),
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -348,25 +370,25 @@ class _ChatsScreenState extends State<ChatsScreen> {
                   onChanged: (val) => setModalState(() {
                     val == true ? selected.add(user) : selected.remove(user);
                   }),
-                  activeColor: const Color(0xFFF5A623),
+                  activeColor: theme.colorScheme.primary,
                   secondary: CircleAvatar(
                     radius: 20,
-                    backgroundColor: const Color(
-                      0xFFF5A623,
-                    ).withValues(alpha: 0.15),
+                    backgroundColor: theme.colorScheme.primary.withValues(
+                      alpha: 0.15,
+                    ),
                     child: Text(
                       user.fullName[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: Color(0xFFF5A623),
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                   title: Text(
                     user.fullName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F1B2D),
+                      color: theme.colorScheme.onSurface,
                       fontSize: 14,
                     ),
                   ),
@@ -374,7 +396,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
                       ? Text(
                           user.headline!,
                           style: TextStyle(
-                            color: Colors.grey.shade500,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
                             fontSize: 12,
                           ),
                         )
@@ -398,20 +422,19 @@ class _ChatsScreenState extends State<ChatsScreen> {
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF5A623),
-                      disabledBackgroundColor: const Color(
-                        0xFFF5A623,
-                      ).withValues(alpha: 0.3),
+                      backgroundColor: theme.colorScheme.primary,
+                      disabledBackgroundColor: theme.colorScheme.primary
+                          .withValues(alpha: 0.3),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Create Group',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: theme.colorScheme.onPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 15,
                       ),
@@ -494,52 +517,62 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios,
-            color: Color(0xFF0F1B2D),
+            color: theme.colorScheme.onSurface,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Messages',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0F1B2D),
+            color: theme.colorScheme.onSurface,
           ),
         ),
         actions: [
           IconButton(
             onPressed: _showNewConversationSheet,
-            icon: const Icon(Icons.edit_outlined, color: Color(0xFFF5A623)),
+            icon: Icon(Icons.edit_outlined, color: theme.colorScheme.primary),
           ),
         ],
       ),
       body: SafeArea(
         child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFFF5A623)),
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: theme.colorScheme.primary,
+                ),
               )
             : _chats.isEmpty
             ? Center(
                 child: Text(
                   'No conversations yet',
-                  style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                    fontSize: 15,
+                  ),
                 ),
               )
             : ListView.separated(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: _chats.length,
-                separatorBuilder: (_, _) =>
-                    const Divider(height: 1, indent: 72, endIndent: 16),
+                separatorBuilder: (_, _) => Divider(
+                  height: 1,
+                  indent: 72,
+                  endIndent: 16,
+                  color: theme.dividerColor,
+                ),
                 itemBuilder: (context, i) => _buildChatTile(_chats[i]),
               ),
       ),
@@ -547,6 +580,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   Widget _buildChatTile(Chat chat) {
+    final theme = Theme.of(context);
     final initial = chat.name[0].toUpperCase();
     final lastMsg = _lastMessagesByChatId[chat.id];
     final time = _formatTime(
@@ -561,11 +595,13 @@ class _ChatsScreenState extends State<ChatsScreen> {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: const Color(0xFFF5A623).withValues(alpha: 0.15),
+              backgroundColor: theme.colorScheme.primary.withValues(
+                alpha: 0.15,
+              ),
               child: Text(
                 initial,
-                style: const TextStyle(
-                  color: Color(0xFFF5A623),
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
@@ -581,17 +617,19 @@ class _ChatsScreenState extends State<ChatsScreen> {
                     children: [
                       Text(
                         chat.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F1B2D),
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                       Text(
                         time,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade400,
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.4,
+                          ),
                         ),
                       ),
                     ],
@@ -607,8 +645,10 @@ class _ChatsScreenState extends State<ChatsScreen> {
                           style: TextStyle(
                             fontSize: 13,
                             color: chat.unreadCount > 0
-                                ? const Color(0xFF0F1B2D)
-                                : Colors.grey.shade500,
+                                ? theme.colorScheme.onSurface
+                                : theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.6,
+                                  ),
                             fontWeight: chat.unreadCount > 0
                                 ? FontWeight.w600
                                 : FontWeight.normal,
@@ -625,13 +665,13 @@ class _ChatsScreenState extends State<ChatsScreen> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF5A623),
+                            color: theme.colorScheme.primary,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             '${chat.unreadCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: theme.colorScheme.onPrimary,
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                             ),
