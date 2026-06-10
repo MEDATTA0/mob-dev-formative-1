@@ -1,9 +1,8 @@
-import 'package:assignment1/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:assignment1/models/index.dart';
-import 'package:assignment1/models/session.dart';
+import 'package:assignment1/screens/session.dart';
 import 'settings_page.dart';
-import 'home.dart';
+import 'help_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -203,9 +202,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     ProfileMenuTile(
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
-                      onTap: () {
-                        _navigateToPage(context, const SettingsPage());
-                      },
                        onTap: () {
                         _navigateToPage(
                           context,
@@ -221,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.help_outline,
                       title: "Help & Support",
                       onTap: () {
-                        _navigateToPage(context, const SettingsPage());
+                        _navigateToPage(context, const HelpPage());
                       },
                     ),
 

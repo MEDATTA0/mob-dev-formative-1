@@ -199,8 +199,9 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
         return FutureBuilder<Post?>(
           future: postStore.findById(rsvps[i].postId),
           builder: (context, snap) {
-            if (!snap.hasData || snap.data == null)
+            if (!snap.hasData || snap.data == null) {
               return const SizedBox.shrink();
+            }
             return _buildCard(rsvps[i], snap.data!);
           },
         );
