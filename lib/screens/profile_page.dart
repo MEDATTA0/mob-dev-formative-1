@@ -206,12 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       onTap: () {
                         _navigateToPage(context, const SettingsPage());
                       },
-                       onTap: () {
-                        _navigateToPage(
-                          context,
-                          const SettingsPage(),
-                        );
-                      },
+                     
                       
                     ),
 
