@@ -21,6 +21,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   String? selectedCategory;
   String? selectedLocation;
+  DateTime? selectedStartDate;
+  TimeOfDay? selectedStartTime;
+  DateTime? selectedEndDate;
+  TimeOfDay? selectedEndTime;
 
   Future<void> _publishPost() async {
     if (titleController.text.isEmpty) {
@@ -39,25 +43,72 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       _showError('Please select a category');
       return;
     }
+    if (isEvent) {
+      if (selectedStartDate == null) {
+        _showError('Please select start date for the event');
+        return;
+      }
+      if (selectedStartTime == null) {
+        _showError('Please select start time for the event');
+        return;
+      }
+    }
 
     try {
+      // Get current user ID
+      int authorId = 1; // Default fallback
+      try {
+        final users = await userStore.findAll();
+        if (users.isNotEmpty) {
+          authorId = users.first.getId();
+        }
+      } catch (_) {}
+
+      // Combine date and time for events
+      DateTime? eventStartTime;
+      DateTime? eventEndTime;
+      
+      if (isEvent && selectedStartDate != null && selectedStartTime != null) {
+        eventStartTime = DateTime(
+          selectedStartDate!.year,
+          selectedStartDate!.month,
+          selectedStartDate!.day,
+          selectedStartTime!.hour,
+          selectedStartTime!.minute,
+        );
+        
+        if (selectedEndDate != null && selectedEndTime != null) {
+          eventEndTime = DateTime(
+            selectedEndDate!.year,
+            selectedEndDate!.month,
+            selectedEndDate!.day,
+            selectedEndTime!.hour,
+            selectedEndTime!.minute,
+          );
+        } else {
+          // Default to 2 hours after start time if no end time specified
+          eventEndTime = eventStartTime.add(const Duration(hours: 2));
+        }
+      }
+
       final post = Post(
+        authorId: authorId,
+        type: isEvent ? PostType.event : PostType.opportunity,
         title: titleController.text,
         description: descriptionController.text,
         category: selectedCategory!,
         location: selectedLocation!,
         campusId: selectedLocation!,
         tags: [selectedCategory!],
-        isEvent: isEvent,
         coverImageUrl: _selectedImage?.path ?? '',
-        startTime: isEvent ? DateTime.now().add(const Duration(days: 1)) : null,
-        endTime: isEvent ? DateTime.now().add(const Duration(days: 1, hours: 2)) : null,
+        startTime: eventStartTime,
+        endTime: eventEndTime,
       );
 
       await postStore.add(post);
       
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context, true); // Return true to indicate success
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Post published successfully!'),
@@ -122,15 +173,69 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         setState(() {
           _selectedImage = File(image.path);
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Image selected successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Image selected successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       }
     } catch (e) {
       _showError('Failed to pick image: $e');
+    }
+  }
+
+  Future<void> _selectStartDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: selectedStartDate ?? DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (date != null) {
+      setState(() {
+        selectedStartDate = date;
+      });
+    }
+  }
+
+  Future<void> _selectStartTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: selectedStartTime ?? TimeOfDay.now(),
+    );
+    if (time != null) {
+      setState(() {
+        selectedStartTime = time;
+      });
+    }
+  }
+
+  Future<void> _selectEndDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: selectedEndDate ?? selectedStartDate ?? DateTime.now().add(const Duration(days: 1)),
+      firstDate: selectedStartDate ?? DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (date != null) {
+      setState(() {
+        selectedEndDate = date;
+      });
+    }
+  }
+
+  Future<void> _selectEndTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: selectedEndTime ?? TimeOfDay.now(),
+    );
+    if (time != null) {
+      setState(() {
+        selectedEndTime = time;
+      });
     }
   }
 
@@ -271,10 +376,140 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
                     const SizedBox(height: 20),
 
+                    // Date and Time Selection (only for events)
+                    if (isEvent) const SizedBox(height: 0),
+                    if (isEvent)
+                      _buildLabel("Event Start Date & Time"),
+                    if (isEvent)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: _selectStartDate,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: AppColors.card,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      selectedStartDate != null
+                                          ? '${selectedStartDate!.day}/${selectedStartDate!.month}/${selectedStartDate!.year}'
+                                          : 'Select Date',
+                                      style: TextStyle(
+                                        color: selectedStartDate != null ? Colors.black : Colors.grey.shade500,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: _selectStartTime,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: AppColors.card,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      selectedStartTime != null
+                                          ? selectedStartTime!.format(context)
+                                          : 'Select Time',
+                                      style: TextStyle(
+                                        color: selectedStartTime != null ? Colors.black : Colors.grey.shade500,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                    if (isEvent) const SizedBox(height: 15),
+                    if (isEvent) _buildLabel("Event End Date & Time (Optional)"),
+                    if (isEvent)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: _selectEndDate,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: AppColors.card,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      selectedEndDate != null
+                                          ? '${selectedEndDate!.day}/${selectedEndDate!.month}/${selectedEndDate!.year}'
+                                          : 'Select Date',
+                                      style: TextStyle(
+                                        color: selectedEndDate != null ? Colors.black : Colors.grey.shade500,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: _selectEndTime,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: AppColors.card,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      selectedEndTime != null
+                                          ? selectedEndTime!.format(context)
+                                          : 'Select Time',
+                                      style: TextStyle(
+                                        color: selectedEndTime != null ? Colors.black : Colors.grey.shade500,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (isEvent) const SizedBox(height: 20),
+
                     _buildLabel("Title"),
 
                     TextField(
                       controller: titleController,
+                      style: const TextStyle(color: Colors.black),
                       decoration: _inputDecoration(
                         "Enter title",
                       ),
@@ -286,6 +521,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
                     TextField(
                       controller: descriptionController,
+                      style: const TextStyle(color: Colors.black),
                       maxLines: 5,
                       decoration: _inputDecoration(
                         "Describe your event...",
