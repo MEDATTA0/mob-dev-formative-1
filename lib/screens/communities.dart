@@ -37,6 +37,18 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   Widget _buildEmptyState() {
     final theme = Theme.of(context);
+
+    String message;
+    if (_searchQuery.isNotEmpty) {
+      message = 'No clubs match "$_searchQuery"';
+    } else if (_campusFilter != 'All') {
+      message = 'No clubs at this campus yet';
+    } else if (_tab == 'My Clubs') {
+      message = "You haven't joined any clubs yet";
+    } else {
+      message = 'No clubs available';
+    }
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -48,9 +60,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            _tab == 'My Clubs'
-                ? "You haven't joined any clubs yet"
-                : 'No clubs available',
+            message,
             style: TextStyle(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
               fontSize: 15,
@@ -370,7 +380,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               children: [
                 _buildTabs(),
                 _buildSearchBar(),
-                _buildCampusFilter()
+                _buildCampusFilter(),
                 Expanded(
                   child: _visibleClubs.isEmpty
                       ? _buildEmptyState()
