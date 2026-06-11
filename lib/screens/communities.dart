@@ -9,12 +9,12 @@ class CommunitiesScreen extends StatefulWidget {
 }
 
 class _CommunitiesScreenState extends State<CommunitiesScreen> {
-  
-
   bool _loading = true;
   List<Club> _clubs = [];
   List<ClubMembership> _myMemberships = [];
   int _userId = 1;
+  String _searchQuery = '';
+  String _campusFilter = 'All';
 
   @override
   void initState() {
@@ -165,8 +165,16 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   String _tab = 'All Clubs';
 
   List<Club> get _visibleClubs {
-    if (_tab == 'My Clubs') return _clubs.where(_isMember).toList();
-    return _clubs;
+    var clubs = _tab == 'My Clubs' ? _clubs.where(_isMember).toList() : _clubs;
+
+    if (_searchQuery.isNotEmpty) {
+      clubs = clubs
+          .where(
+            (c) => c.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
+          .toList();
+    }
+    return clubs;
   }
 
   Future<void> _toggledJoin(Club club) async {
@@ -195,6 +203,46 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     );
   }
 
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.search, color: Colors.grey.shade400, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search clubs...',
+                  hintStyle: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 14,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onChanged: (value) => setState(() => _searchQuery = value),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTabs() {
     final theme = Theme.of(context);
     return Container(
@@ -216,7 +264,6 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    
                     color: selected
                         ? theme.colorScheme.surface
                         : Colors.transparent,
@@ -232,7 +279,6 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                     tab,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      
                       color: selected
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurface.withValues(alpha: 0.6),
@@ -276,6 +322,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           : Column(
               children: [
                 _buildTabs(),
+                _buildSearchBar(),
                 Expanded(
                   child: _visibleClubs.isEmpty
                       ? _buildEmptyState()
