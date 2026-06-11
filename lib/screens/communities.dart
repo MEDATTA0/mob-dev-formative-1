@@ -174,6 +174,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
           )
           .toList();
     }
+    if (_campusFilter != 'All') {
+      clubs = clubs.where((c) => c.campusId == _campusFilter).toList();
+    }
     return clubs;
   }
 
@@ -295,6 +298,50 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     );
   }
 
+  Widget _buildCampusFilter() {
+    final campuses = ['All', 'KG', 'MU', 'RW'];
+    final labels = {
+      'All': 'All Campuses',
+      'KG': 'Kigali',
+      'MU': 'Mauritius',
+      'RW': 'Rwanda',
+    };
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: campuses.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final campus = campuses[i];
+          final selected = _campusFilter == campus;
+          return GestureDetector(
+            onTap: () => setState(() => _campusFilter = campus),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: selected ? _amber : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: selected ? _amber : Colors.grey.shade300,
+                ),
+              ),
+              child: Text(
+                labels[campus] ?? campus,
+                style: TextStyle(
+                  color: selected ? Colors.white : Colors.grey.shade600,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   // Is the current user an active member of this club?
   bool _isMember(Club club) {
     return _myMemberships.any(
@@ -323,6 +370,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               children: [
                 _buildTabs(),
                 _buildSearchBar(),
+                _buildCampusFilter()
                 Expanded(
                   child: _visibleClubs.isEmpty
                       ? _buildEmptyState()
