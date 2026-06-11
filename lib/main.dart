@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:assignment1/screens/communities.dart';
+import 'package:assignment1/screens/notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +82,7 @@ class _MyAppState extends State<MyApp> {
       labelMedium: GoogleFonts.poppins(color: AppColors.lightText),
       labelSmall: GoogleFonts.poppins(color: AppColors.lightText),
     ),
-    
+
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.lightBackground,
   );
@@ -130,7 +131,7 @@ class _MyAppState extends State<MyApp> {
       labelMedium: GoogleFonts.poppins(color: AppColors.darkText),
       labelSmall: GoogleFonts.poppins(color: AppColors.darkText),
     ),
-    
+
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.darkBackground,
   );
@@ -151,6 +152,7 @@ class _MyAppState extends State<MyApp> {
         "/home": (context) => HomeScreen(),
         "/profile": (context) => ProfilePage(),
         "/communities": (context) => const CommunitiesScreen(),
+        "/notifications": (context) => const NotificationsScreen(),
       },
     );
   }
