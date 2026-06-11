@@ -204,12 +204,20 @@ class _ProfilePageState extends State<ProfilePage> {
                     ProfileMenuTile(
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
+<<<<<<< Updated upstream
                        onTap: () {
                         _navigateToPage(
                           context,
                           const SettingsPage(),
                         );
                       },
+=======
+                      onTap: () {
+                        _navigateToPage(context, const SettingsPage());
+                      },
+                    
+                      
+>>>>>>> Stashed changes
                     ),
 
                     const Divider(height: 1),
