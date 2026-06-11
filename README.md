@@ -27,7 +27,7 @@ A Flutter application designed as a social and community-building platform that 
 * **State & Persistence**: [Hive](https://pub.dev/packages/hive) & [Hive Flutter](https://pub.dev/packages/hive_flutter)
 * **Fonts**: [Google Fonts (Poppins)](https://pub.dev/packages/google_fonts)
 * **Images**: [Cached Network Image](https://pub.dev/packages/cached_network_image)
-* **Utilities**: `collection`, `intl`, `image_picker`, `url_launcher`
+* **Utilities**: [collection](https://pub.dev/packages/collection), [intl](https://pub.dev/packages/intl), [image_picker](https://pub.dev/packages/image_picker), [url_launcher](https://pub.dev/packages/url_launcher)
 
 ---
 
