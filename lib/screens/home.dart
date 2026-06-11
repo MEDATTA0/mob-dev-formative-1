@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:assignment1/constants.dart';
@@ -88,9 +89,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _navigateTo(Widget screen) {
+  Future<dynamic> _navigateTo(Widget screen) {
     _searchFocus.unfocus();
-    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    return Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
   List<Post> get _filteredPosts {
@@ -139,7 +140,11 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       case 2:
         setState(() => _currentIndex = 2);
-        _navigateTo(const CreatePostScreen());
+        _navigateTo(const CreatePostScreen()).then((result) {
+          if (result == true) {
+            _loadData(); // Refresh data when post is created
+          }
+        });
         break;
       case 3:
         setState(() => _currentIndex = 3);
@@ -182,6 +187,26 @@ class _HomeScreenState extends State<HomeScreen> {
     if (url.startsWith('assets/')) {
       return Image.asset(
         url,
+        width: width,
+        height: height,
+        fit: fit,
+        alignment: Alignment.topCenter,
+        errorBuilder: (_, _, _) => Container(
+          width: width,
+          height: height,
+          color: fallbackPlaceholderColor,
+          child: Icon(
+            Icons.image_outlined,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            size: 32,
+          ),
+        ),
+      );
+    }
+
+    if (!url.startsWith('http')) {
+      return Image.file(
+        File(url),
         width: width,
         height: height,
         fit: fit,
