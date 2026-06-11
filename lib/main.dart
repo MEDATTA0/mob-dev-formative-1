@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/screens/profile_page.dart';
@@ -28,7 +30,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.dark;
+  ThemeMode _themeMode = ThemeMode.system;
 
   void changeTheme(bool isDark) {
     setState(() {
@@ -80,6 +82,7 @@ class _MyAppState extends State<MyApp> {
       labelMedium: GoogleFonts.poppins(color: AppColors.lightText),
       labelSmall: GoogleFonts.poppins(color: AppColors.lightText),
     ),
+    textTheme: GoogleFonts.poppinsTextTheme(),
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.lightBackground,
   );
@@ -128,6 +131,7 @@ class _MyAppState extends State<MyApp> {
       labelMedium: GoogleFonts.poppins(color: AppColors.darkText),
       labelSmall: GoogleFonts.poppins(color: AppColors.darkText),
     ),
+    textTheme: GoogleFonts.poppinsTextTheme(),
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.darkBackground,
   );
@@ -147,7 +151,7 @@ class _MyAppState extends State<MyApp> {
         "/": (context) => LoginScreen(),
         "/home": (context) => HomeScreen(),
         "/profile": (context) => ProfilePage(),
-       "/communities": (context) => const CommunitiesScreen(),
+        "/communities": (context) => const CommunitiesScreen(),
       },
     );
   }

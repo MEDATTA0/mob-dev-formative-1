@@ -44,19 +44,14 @@ class _ProfilePageState extends State<ProfilePage> {
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 300),
         pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionsBuilder:
-            (context, animation, secondaryAnimation, child) {
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
 
           final tween = Tween(
             begin: begin,
             end: end,
-          ).chain(
-            CurveTween(
-              curve: Curves.easeInOut,
-            ),
-          );
+          ).chain(CurveTween(curve: Curves.easeInOut));
 
           return SlideTransition(
             position: animation.drive(tween),
@@ -72,11 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final theme = Theme.of(context);
 
     if (isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -96,15 +87,9 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           IconButton(
             onPressed: () {
-              _navigateToPage(
-                context,
-                const SettingsPage(),
-              );
+              _navigateToPage(context, const SettingsPage());
             },
-            icon: Icon(
-              Icons.settings,
-              color: theme.colorScheme.primary,
-            ),
+            icon: Icon(Icons.settings, color: theme.colorScheme.primary),
           ),
         ],
       ),
@@ -118,10 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: theme.colorScheme.primary,
-                  width: 3,
-                ),
+                border: Border.all(color: theme.colorScheme.primary, width: 3),
               ),
               child: CircleAvatar(
                 radius: 55,
@@ -138,6 +120,19 @@ class _ProfilePageState extends State<ProfilePage> {
                             size: 55,
                           )
                         : null,
+                backgroundColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.15,
+                ),
+                backgroundImage: currentUser?.profilePictureUrl != null
+                    ? NetworkImage(currentUser!.profilePictureUrl!)
+                    : null,
+                child: currentUser?.profilePictureUrl == null
+                    ? Icon(
+                        Icons.person,
+                        size: 55,
+                        color: theme.colorScheme.primary,
+                      )
+                    : null,
               ),
             ),
 
@@ -155,9 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 5),
 
             Text(
-              currentUser?.campusName ??
-                  currentUser?.campusId ??
-                  "Campus",
+              currentUser?.campusName ?? currentUser?.campusId ?? "Campus",
               style: TextStyle(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 16,
@@ -234,9 +227,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.help_outline,
                       title: "Help & Support",
                       onTap: () {
-                        _navigateToPage(context,
-                          const HelpPage(),
-                        );
+                        _navigateToPage(context, const HelpPage());
                       },
                     ),
 
@@ -271,11 +262,7 @@ class ProfileStat extends StatelessWidget {
   final String number;
   final String label;
 
-  const ProfileStat({
-    super.key,
-    required this.number,
-    required this.label,
-  });
+  const ProfileStat({super.key, required this.number, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -320,25 +307,13 @@ class ProfileMenuTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 4,
-      ),
-      leading: Icon(
-        icon,
-        color: theme.colorScheme.primary,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      leading: Icon(icon, color: theme.colorScheme.primary),
       title: Text(
         title,
-        style: TextStyle(
-          color: theme.colorScheme.onSurface,
-          fontSize: 16,
-        ),
+        style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
       ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: theme.colorScheme.primary,
-      ),
+      trailing: Icon(Icons.chevron_right, color: theme.colorScheme.primary),
       onTap: onTap,
     );
   }

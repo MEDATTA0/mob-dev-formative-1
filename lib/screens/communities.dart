@@ -37,17 +37,25 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   }
 
   Widget _buildEmptyState() {
+    final theme = Theme.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.groups_outlined, size: 52, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25)),
+          Icon(
+            Icons.groups_outlined,
+            size: 52,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+          ),
           const SizedBox(height: 12),
           Text(
             _tab == 'My Clubs'
                 ? "You haven't joined any clubs yet"
                 : 'No clubs available',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 15),
+            style: TextStyle(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+              fontSize: 15,
+            ),
           ),
         ],
       ),
@@ -55,16 +63,19 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   }
 
   Widget _buildClubCard(Club club) {
+    final theme = Theme.of(context);
     final isMember = _isMember(club);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: theme.brightness == Brightness.dark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -74,8 +85,11 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         children: [
           CircleAvatar(
             radius: 26,
-            backgroundColor: _amber.withValues(alpha: 0.12),
-            child: Icon(_iconFor(club.logoIconName), color: _amber),
+            backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+            child: Icon(
+              _iconFor(club.logoIconName),
+              color: theme.colorScheme.primary,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -85,7 +99,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 Text(
                   club.name,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: theme.colorScheme.onSurface,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
@@ -93,7 +107,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '${club.memberCount} members',
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),
@@ -103,9 +120,14 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
             onPressed: () => _toggledJoin(club),
             style: OutlinedButton.styleFrom(
               backgroundColor: isMember
-                  ? _green.withValues(alpha: 0.1)
+                  ? theme.colorScheme.secondary.withValues(alpha: 0.1)
                   : Colors.transparent,
-              side: BorderSide(color: isMember ? _green : _amber, width: 1.5),
+              side: BorderSide(
+                color: isMember
+                    ? theme.colorScheme.secondary
+                    : theme.colorScheme.primary,
+                width: 1.5,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -114,7 +136,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
             child: Text(
               isMember ? 'Joined' : 'Join',
               style: TextStyle(
-                color: isMember ? _green : _amber,
+                color: isMember
+                    ? theme.colorScheme.secondary
+                    : theme.colorScheme.primary,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
@@ -172,17 +196,14 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
     );
   }
 
-
-
   Widget _buildTabs() {
-    final surface = Theme.of(context).colorScheme.surface;
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final theme = Theme.of(context);
     return Container(
-      color: surface,
+      color: theme.colorScheme.surface,
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       child: Container(
         decoration: BoxDecoration(
-          color: onSurface.withValues(alpha: 0.08),
+          color: theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(30),
         ),
         padding: const EdgeInsets.all(4),
@@ -197,9 +218,15 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     color: selected ? surface : Colors.transparent,
+                    color: selected
+                        ? theme.colorScheme.surface
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
                     border: selected
-                        ? Border.all(color: _amber, width: 1.5)
+                        ? Border.all(
+                            color: theme.colorScheme.primary,
+                            width: 1.5,
+                          )
                         : null,
                   ),
                   child: Text(
@@ -207,6 +234,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: selected ? _amber : onSurface.withValues(alpha: 0.5),
+                      color: selected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -229,26 +259,33 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        backgroundColor: theme.scaffoldBackgroundColor,
+        foregroundColor: theme.colorScheme.onSurface,
         elevation: 0.5,
         title: const Text('Communities'),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(
+                color: theme.colorScheme.primary,
+              ),
+            )
           : Column(
               children: [
                 _buildTabs(),
                 Expanded(
-                  child: _visibleClubs.isEmpty ? _buildEmptyState(): ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: _visibleClubs
-                        .map(_buildClubCard)
-                        .toList(), // temporary
-                  ),
+                  child: _visibleClubs.isEmpty
+                      ? _buildEmptyState()
+                      : ListView(
+                          padding: const EdgeInsets.all(16),
+                          children: _visibleClubs
+                              .map(_buildClubCard)
+                              .toList(), // temporary
+                        ),
                 ),
               ],
             ),

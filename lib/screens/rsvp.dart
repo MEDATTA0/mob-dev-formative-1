@@ -56,8 +56,9 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
     return status == RSVPStatus.interested;
   }
 
-  Color _badgeColor(RSVPStatus status) =>
-      status == RSVPStatus.going ? const Color(0xFF2A9D6F) : const Color(0xFFF5A623);
+  Color _badgeColor(RSVPStatus status) => status == RSVPStatus.going
+      ? const Color(0xFF2A9D6F)
+      : const Color(0xFFF5A623);
 
   String _badgeLabel(RSVPStatus status) =>
       status == RSVPStatus.going ? 'Going' : 'Interested';
@@ -69,13 +70,14 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -102,14 +104,13 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
   }
 
   Widget _buildTabToggle() {
-    final surface = Theme.of(context).colorScheme.surface;
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final theme = Theme.of(context);
     return Container(
-      color: surface,
+      color: theme.colorScheme.surface,
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       child: Container(
         decoration: BoxDecoration(
-          color: onSurface.withValues(alpha: 0.08),
+          color: theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(30),
         ),
         padding: const EdgeInsets.all(4),
@@ -126,7 +127,10 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
                     color: isSelected ? surface : Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
                     border: isSelected
-                        ? Border.all(color: const Color(0xFFF5A623), width: 1.5)
+                        ? Border.all(
+                            color: theme.colorScheme.primary,
+                            width: 1.5,
+                          )
                         : null,
                     boxShadow: isSelected
                         ? [
@@ -134,7 +138,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
                               color: Colors.black.withValues(alpha: 0.07),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
-                            )
+                            ),
                           ]
                         : [],
                   ),
@@ -159,6 +163,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
   }
 
   Widget _buildList() {
+    final theme = Theme.of(context);
     final rsvps = _userRsvps;
 
     if (rsvps.isEmpty) {
@@ -166,11 +171,18 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.event_busy_outlined, size: 52, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25)),
+            Icon(
+              Icons.event_busy_outlined,
+              size: 52,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+            ),
             const SizedBox(height: 12),
             Text(
               'No $_selectedTab events yet',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 15),
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                fontSize: 15,
+              ),
             ),
           ],
         ),
@@ -185,7 +197,9 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
         return FutureBuilder<Post?>(
           future: postStore.findById(rsvps[i].postId),
           builder: (context, snap) {
-            if (!snap.hasData || snap.data == null) return const SizedBox.shrink();
+            if (!snap.hasData || snap.data == null) {
+              return const SizedBox.shrink();
+            }
             return _buildCard(rsvps[i], snap.data!);
           },
         );
@@ -194,6 +208,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
   }
 
   Widget _buildCard(RSVP rsvp, Post post) {
+    final theme = Theme.of(context);
     final color = _badgeColor(rsvp.status);
     final label = _badgeLabel(rsvp.status);
 
@@ -235,7 +250,10 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
                   bottom: 0,
                   left: 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: color,
                       borderRadius: const BorderRadius.only(
@@ -257,7 +275,10 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 14,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -296,7 +317,11 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
       width: 95,
       height: 95,
       color: color.withValues(alpha: 0.1),
-      child: Icon(Icons.event_outlined, color: color.withValues(alpha: 0.4), size: 28),
+      child: Icon(
+        Icons.event_outlined,
+        color: color.withValues(alpha: 0.4),
+        size: 28,
+      ),
     );
   }
 }

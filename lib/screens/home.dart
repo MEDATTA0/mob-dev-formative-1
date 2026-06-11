@@ -8,6 +8,7 @@ import 'package:assignment1/screens/chats_screen.dart';
 import 'package:assignment1/screens/profile_page.dart';
 import 'package:assignment1/screens/communities.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:assignment1/screens/create_post.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -138,6 +139,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _navigateTo(const CommunitiesScreen());
         break;
       case 2:
+      	setState(() => _currentIndex = 2);
+        _navigateTo(const CreatePostScreen());
         break;
       case 3:
         setState(() => _currentIndex = 3);
@@ -150,7 +153,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // ── Image helper ──────────────────────────────────────────
   Widget _buildImage(
     String? url, {
     double? width,
@@ -158,15 +160,21 @@ class _HomeScreenState extends State<HomeScreen> {
     BoxFit fit = BoxFit.cover,
     Color? placeholderColor,
   }) {
-    final resolvedPlaceholder = placeholderColor ?? Theme.of(context).colorScheme.surface;
+    final theme = Theme.of(context);
+    final fallbackPlaceholderColor =
+        placeholderColor ??
+        (theme.brightness == Brightness.dark
+            ? const Color(0xFF1E293B)
+            : const Color(0xFFE8EAF0));
+
     if (url == null || url.isEmpty) {
       return Container(
         width: width,
         height: height,
-        color: resolvedPlaceholder,
+        color: fallbackPlaceholderColor,
         child: Icon(
           Icons.image_outlined,
-          color: Colors.grey.shade400,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
           size: 32,
         ),
       );
@@ -182,10 +190,10 @@ class _HomeScreenState extends State<HomeScreen> {
         errorBuilder: (_, _, _) => Container(
           width: width,
           height: height,
-          color: resolvedPlaceholder,
+          color: fallbackPlaceholderColor,
           child: Icon(
             Icons.image_outlined,
-            color: Colors.grey.shade400,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             size: 32,
           ),
         ),
@@ -201,21 +209,21 @@ class _HomeScreenState extends State<HomeScreen> {
       placeholder: (_, _) => Container(
         width: width,
         height: height,
-        color: resolvedPlaceholder,
-        child: const Center(
+        color: fallbackPlaceholderColor,
+        child: Center(
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: Color(0xFFF5A623),
+            color: theme.colorScheme.primary,
           ),
         ),
       ),
       errorWidget: (_, _, _) => Container(
         width: width,
         height: height,
-        color: resolvedPlaceholder,
+        color: fallbackPlaceholderColor,
         child: Icon(
           Icons.image_outlined,
-          color: Colors.grey.shade400,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
           size: 32,
         ),
       ),
@@ -224,10 +232,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final firstName = _currentUser?.fullName.split(' ').first ?? 'there';
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -275,6 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader(String firstName) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -288,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const Text('👋', style: TextStyle(fontSize: 22)),
@@ -296,7 +306,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Text(
               "What's happening today?",
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              style: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ],
         ),
@@ -325,15 +338,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSearchBar() {
-    const amber = Color(0xFFF5A623);
-    final surface = Theme.of(context).colorScheme.surface;
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
+    final theme = Theme.of(context);
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: surface,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _searchFocused ? amber : Colors.transparent,
@@ -407,6 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategories() {
+    final theme = Theme.of(context);
     return SizedBox(
       height: 80,
       child: ListView.separated(
@@ -455,6 +465,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSectionHeader(String title) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -468,11 +479,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         GestureDetector(
           onTap: () => _navigateTo(const MyRsvpsScreen()),
-          child: const Text(
+          child: Text(
             'See all',
             style: TextStyle(
               fontSize: 13,
-              color: Color(0xFFF5A623),
+              color: theme.colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -604,6 +615,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildOpportunityCard(Post post) {
+    final theme = Theme.of(context);
     final color = _tagColor(post);
     final tag = _tagLabel(post);
 
@@ -615,7 +627,9 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: theme.brightness == Brightness.dark
+                  ? Colors.black.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -713,7 +727,9 @@ class _HomeScreenState extends State<HomeScreen> {
         color: navBg,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: theme.brightness == Brightness.dark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -725,6 +741,9 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: navBg,
         selectedItemColor: const Color(0xFFF5A623),
         unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+        backgroundColor: theme.colorScheme.surface,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.colorScheme.onSurface.withValues(alpha: 0.4),
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         selectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),

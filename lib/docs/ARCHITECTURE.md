@@ -44,6 +44,8 @@ The app uses [Hive](https://pub.dev/packages/hive) for fast, lightweight local N
 - **Data Serialization**: Objects are stored as plain Maps and parsed back into Entities on retrieval.
 The official Hive library is no longer maintained, yet it's still functional for our project use case.
 
+For more information on the history and future direction of local persistence in this project, see [ADR 0001: Storage Solution Evolution](./adr/0001-storage-solution-evolution.md).
+
 ### Data Seeding
 Upon startup, the `initializeStores()` helper instantiates the stores and checks if the corresponding Hive boxes are empty. If they are, it reads from the `lib/data/` seeds and populates the database.
 
