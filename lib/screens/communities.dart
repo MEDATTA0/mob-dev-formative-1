@@ -9,6 +9,9 @@ class CommunitiesScreen extends StatefulWidget {
 }
 
 class _CommunitiesScreenState extends State<CommunitiesScreen> {
+  static const _amber = Color(0xFFF5A623);
+  static const _green = Color(0xFF2A9D6F);
+
   bool _loading = true;
   List<Club> _clubs = [];
   List<ClubMembership> _myMemberships = [];
@@ -214,6 +217,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
+                    color: selected ? surface : Colors.transparent,
                     color: selected
                         ? theme.colorScheme.surface
                         : Colors.transparent,
@@ -229,6 +233,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                     tab,
                     textAlign: TextAlign.center,
                     style: TextStyle(
+                      color: selected ? _amber : onSurface.withValues(alpha: 0.5),
                       color: selected
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurface.withValues(alpha: 0.6),

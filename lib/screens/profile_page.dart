@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
-import 'package:assignment1/screens/session.dart';
 import 'settings_page.dart';
 import 'help_page.dart';
 
@@ -22,17 +22,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> loadUser() async {
-    final userId = Session.currentUserId;
-
-    if (userId == null) {
-      setState(() {
-        isLoading = false;
-      });
+    final loggedInEmail = AuthSession().loggedInEmail;
+    if (loggedInEmail == null) {
+      setState(() => isLoading = false);
       return;
     }
-
-    final user = await userStore.findById(userId);
-
+    final users = await userStore.findAll();
+    final user = users.firstWhere(
+      (u) => u.email.toLowerCase() == loggedInEmail.toLowerCase(),
+      orElse: () => users.first,
+    );
     setState(() {
       currentUser = user;
       isLoading = false;
@@ -96,7 +95,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 90),
         child: Column(
           children: [
             const SizedBox(height: 20),
@@ -109,6 +107,19 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               child: CircleAvatar(
                 radius: 55,
+                backgroundImage:
+                    currentUser?.profilePictureUrl != null
+                        ? NetworkImage(
+                            currentUser!.profilePictureUrl!,
+                          )
+                        : null,
+                child:
+                    currentUser?.profilePictureUrl == null
+                        ? const Icon(
+                            Icons.person,
+                            size: 55,
+                          )
+                        : null,
                 backgroundColor: theme.colorScheme.primary.withValues(
                   alpha: 0.15,
                 ),
@@ -208,7 +219,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           const SettingsPage(),
                         );
                       },
-                      
                     ),
 
                     const Divider(height: 1),
@@ -226,15 +236,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     ProfileMenuTile(
                       icon: Icons.logout,
                       title: "Logout",
-                     onTap: () {
-  Session.logout();
-
-  Navigator.pushNamedAndRemoveUntil(
-    context,
-    '/',
-    (route) => false,
-  );
-},
+                      onTap: () {
+                        AuthSession().loggedInEmail = null;
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/',
+                          (route) => false,
+                        );
+                      },
                     ),
                   ],
                 ),

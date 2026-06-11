@@ -83,7 +83,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
         title: Text(
           'My RSVPs',
           style: TextStyle(
-            color: theme.colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
@@ -124,9 +124,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? theme.colorScheme.surface
-                        : Colors.transparent,
+                    color: isSelected ? surface : Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
                     border: isSelected
                         ? Border.all(
@@ -150,7 +148,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
                     style: TextStyle(
                       color: isSelected
                           ? const Color(0xFFF5A623)
-                          : Colors.grey.shade500,
+                          : onSurface.withValues(alpha: 0.5),
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -218,7 +216,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
       onTap: () => _goToDetail(post),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -286,8 +284,8 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
                   children: [
                     Text(
                       post.title,
-                      style: const TextStyle(
-                        color: Color(0xFF0F1B2D),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w700,
                         fontSize: 15,
                         height: 1.3,
@@ -298,10 +296,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
                     const SizedBox(height: 6),
                     Text(
                       '${_formatDate(post.startTime)} • ${post.location}',
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 13,
-                      ),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
                     ),
                   ],
                 ),
@@ -309,11 +304,7 @@ class _MyRsvpsScreenState extends State<MyRsvpsScreen> with RouteAware {
             ),
             Padding(
               padding: const EdgeInsets.only(right: 12),
-              child: Icon(
-                Icons.chevron_right,
-                color: Colors.grey.shade300,
-                size: 20,
-              ),
+              child: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), size: 20),
             ),
           ],
         ),

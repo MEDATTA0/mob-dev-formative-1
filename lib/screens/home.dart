@@ -24,6 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Post> _posts = [];
   User? _currentUser;
 
+  final FocusNode _searchFocus = FocusNode();
+  final TextEditingController _searchController = TextEditingController();
+  bool _searchFocused = false;
+
   final List<Map<String, dynamic>> _categories = [
     {
       'label': 'All',
@@ -56,6 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadData();
+    _searchFocus.addListener(() {
+      setState(() => _searchFocused = _searchFocus.hasFocus);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocus.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -76,6 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _navigateTo(Widget screen) {
+    _searchFocus.unfocus();
     Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
@@ -248,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(32),
                     child: Text(
                       'No posts yet',
-                      style: TextStyle(color: Colors.grey.shade400),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
                     ),
                   ),
                 )
@@ -302,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () => _navigateTo(const ProfilePage()),
           child: CircleAvatar(
             radius: 24,
-            backgroundColor: Colors.grey.shade200,
+            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
             backgroundImage: _currentUser?.profilePictureUrl != null
                 ? NetworkImage(_currentUser!.profilePictureUrl!)
                 : null,
@@ -329,36 +344,40 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _searchFocused ? amber : Colors.transparent,
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: theme.brightness == Brightness.dark
-                ? Colors.black.withValues(alpha: 0.2)
+            color: _searchFocused
+                ? amber.withValues(alpha: 0.18)
                 : Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            blurRadius: _searchFocused ? 18 : 10,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.search,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-            size: 20,
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Icon(
+              Icons.search,
+              key: ValueKey(_searchFocused),
+              color: _searchFocused ? amber : onSurface.withValues(alpha: 0.4),
+              size: 20,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
-              style: TextStyle(
-                color: theme.colorScheme.onSurface,
-                fontSize: 14,
-              ),
+              focusNode: _searchFocus,
+              controller: _searchController,
+              style: TextStyle(color: onSurface),
               decoration: InputDecoration(
                 hintText: 'Search opportunities, events, people...',
-                hintStyle: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                  fontSize: 13,
-                ),
+                hintStyle: TextStyle(color: onSurface.withValues(alpha: 0.4), fontSize: 13),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 14),
               ),
@@ -378,6 +397,19 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
+          if (_searchController.text.isNotEmpty)
+            GestureDetector(
+              onTap: () {
+                _searchController.clear();
+                setState(() => _posts = _allPosts);
+                _searchFocus.unfocus();
+              },
+              child: AnimatedOpacity(
+                opacity: _searchController.text.isNotEmpty ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 150),
+                child: Icon(Icons.close_rounded, color: onSurface.withValues(alpha: 0.4), size: 18),
+              ),
+            ),
         ],
       ),
     );
@@ -420,8 +452,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontSize: 11,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     color: isSelected
-                        ? theme.colorScheme.onSurface
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -442,7 +474,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         GestureDetector(
@@ -591,7 +623,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () => _navigateTo(EventDetailScreen(post: post)),
       child: Container(
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -629,7 +661,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
-                              color: theme.colorScheme.onSurface,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -648,18 +680,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ? 'Apply by ${_formatDate(post.deadline)}'
                           : _formatDate(post.startTime),
                       style: TextStyle(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.6,
-                        ),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                         fontSize: 12,
                       ),
                     ),
                     Text(
                       post.location,
                       style: TextStyle(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.4,
-                        ),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                         fontSize: 12,
                       ),
                     ),
@@ -693,10 +721,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomNav() {
-    final theme = Theme.of(context);
+    final navBg = Theme.of(context).colorScheme.surface;
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: navBg,
         boxShadow: [
           BoxShadow(
             color: theme.brightness == Brightness.dark
@@ -710,6 +738,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onBottomNavTap,
+        backgroundColor: navBg,
+        selectedItemColor: const Color(0xFFF5A623),
+        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
         backgroundColor: theme.colorScheme.surface,
         selectedItemColor: theme.colorScheme.primary,
         unselectedItemColor: theme.colorScheme.onSurface.withValues(alpha: 0.4),

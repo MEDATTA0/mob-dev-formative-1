@@ -19,6 +19,7 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
+  // ignore: library_private_types_in_public_api
   static _MyAppState? of(BuildContext context) {
     return context.findAncestorStateOfType<_MyAppState>();
   }
@@ -47,6 +48,40 @@ class _MyAppState extends State<MyApp> {
       onPrimary: Color(0xFF0F172A),
       onSurface: AppColors.lightText,
     ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFFF5F5F5),
+      labelStyle: const TextStyle(color: Color(0xFF666666)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+    ),
+    textTheme: TextTheme(
+      bodyLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      bodyMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      bodySmall: GoogleFonts.poppins(color: AppColors.lightText),
+      displayLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      displayMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      displaySmall: GoogleFonts.poppins(color: AppColors.lightText),
+      headlineLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      headlineMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      headlineSmall: GoogleFonts.poppins(color: AppColors.lightText),
+      titleLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      titleMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      titleSmall: GoogleFonts.poppins(color: AppColors.lightText),
+      labelLarge: GoogleFonts.poppins(color: AppColors.lightText),
+      labelMedium: GoogleFonts.poppins(color: AppColors.lightText),
+      labelSmall: GoogleFonts.poppins(color: AppColors.lightText),
+    ),
     textTheme: GoogleFonts.poppinsTextTheme(),
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.lightBackground,
@@ -61,6 +96,40 @@ class _MyAppState extends State<MyApp> {
       error: Color(0xFFEF4444),
       onPrimary: Color(0xFF0F172A),
       onSurface: AppColors.darkText,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFF1E293B),
+      labelStyle: const TextStyle(color: Color(0xFFAAAAAA)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+    ),
+    textTheme: TextTheme(
+      bodyLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      bodyMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      bodySmall: GoogleFonts.poppins(color: AppColors.darkText),
+      displayLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      displayMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      displaySmall: GoogleFonts.poppins(color: AppColors.darkText),
+      headlineLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      headlineMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      headlineSmall: GoogleFonts.poppins(color: AppColors.darkText),
+      titleLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      titleMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      titleSmall: GoogleFonts.poppins(color: AppColors.darkText),
+      labelLarge: GoogleFonts.poppins(color: AppColors.darkText),
+      labelMedium: GoogleFonts.poppins(color: AppColors.darkText),
+      labelSmall: GoogleFonts.poppins(color: AppColors.darkText),
     ),
     textTheme: GoogleFonts.poppinsTextTheme(),
     brightness: Brightness.dark,
