@@ -10,6 +10,7 @@ import 'package:assignment1/screens/profile_page.dart';
 import 'package:assignment1/screens/communities.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:assignment1/screens/create_post.dart';
+import 'package:assignment1/screens/notifications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final FocusNode _searchFocus = FocusNode();
   final TextEditingController _searchController = TextEditingController();
   bool _searchFocused = false;
+  int _unreadNotifCount = 0;
 
   final List<Map<String, dynamic>> _categories = [
     {
@@ -60,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadData();
+    _loadUnreadCount();
     _searchFocus.addListener(() {
       setState(() => _searchFocused = _searchFocus.hasFocus);
     });
@@ -70,6 +73,24 @@ class _HomeScreenState extends State<HomeScreen> {
     _searchFocus.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadUnreadCount() async {
+    final allUsers = await userStore.findAll();
+    final loggedInEmail = AuthSession().loggedInEmail;
+    final currentUser = loggedInEmail != null
+        ? allUsers.firstWhere(
+            (u) => u.email.toLowerCase() == loggedInEmail.toLowerCase(),
+            orElse: () => allUsers.first,
+          )
+        : (allUsers.isNotEmpty ? allUsers.first : null);
+    if (currentUser?.id == null || !mounted) return;
+    final notifs = await notificationStore.findByUserId(currentUser!.id!);
+    if (mounted) {
+      setState(() {
+        _unreadNotifCount = notifs.where((n) => !n.isRead).length;
+      });
+    }
   }
 
   Future<void> _loadData() async {
@@ -338,7 +359,54 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        GestureDetector(
+        Row(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    await _navigateTo(const NotificationsScreen());
+                    _loadUnreadCount();
+                  },
+                  icon: Icon(
+                    Icons.notifications_outlined,
+                    color: theme.colorScheme.onSurface,
+                    size: 26,
+                  ),
+                ),
+                if (_unreadNotifCount > 0)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.error,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: theme.scaffoldBackgroundColor,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _unreadNotifCount > 9
+                              ? '9+'
+                              : '$_unreadNotifCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            GestureDetector(
           onTap: () => _navigateTo(const ProfilePage()),
           child: CircleAvatar(
             radius: 24,
@@ -357,6 +425,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 : null,
           ),
+        ),
+          ],
         ),
       ],
     );
