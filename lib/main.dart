@@ -20,7 +20,6 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
-  // ignore: library_private_types_in_public_api
   static _MyAppState? of(BuildContext context) {
     return context.findAncestorStateOfType<_MyAppState>();
   }
