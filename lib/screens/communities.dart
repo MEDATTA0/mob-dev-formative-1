@@ -309,6 +309,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   }
 
   Widget _buildCampusFilter() {
+    final theme = Theme.of(context);
     final campuses = ['All', 'KG', 'MU', 'RW'];
     final labels = {
       'All': 'All Campuses',
@@ -331,16 +332,22 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: selected ? _amber : Colors.white,
+                color: selected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: selected ? _amber : Colors.grey.shade300,
+                  color: selected
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.2),
                 ),
               ),
               child: Text(
                 labels[campus] ?? campus,
                 style: TextStyle(
-                  color: selected ? Colors.white : Colors.grey.shade600,
+                  color: selected
+                      ? Colors.white
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
