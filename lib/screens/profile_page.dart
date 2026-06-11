@@ -113,6 +113,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             currentUser!.profilePictureUrl!,
                           )
                         : null,
+                backgroundColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.15,
+                ),
                 child:
                     currentUser?.profilePictureUrl == null
                         ? const Icon(
@@ -120,19 +123,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             size: 55,
                           )
                         : null,
-                backgroundColor: theme.colorScheme.primary.withValues(
-                  alpha: 0.15,
-                ),
-                backgroundImage: currentUser?.profilePictureUrl != null
-                    ? NetworkImage(currentUser!.profilePictureUrl!)
-                    : null,
-                child: currentUser?.profilePictureUrl == null
-                    ? Icon(
-                        Icons.person,
-                        size: 55,
-                        color: theme.colorScheme.primary,
-                      )
-                    : null,
+                
               ),
             ),
 

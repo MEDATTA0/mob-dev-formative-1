@@ -23,7 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Post> _allPosts = [];
   List<Post> _posts = [];
   User? _currentUser;
-
   final FocusNode _searchFocus = FocusNode();
   final TextEditingController _searchController = TextEditingController();
   bool _searchFocused = false;
@@ -139,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _navigateTo(const CommunitiesScreen());
         break;
       case 2:
-      	setState(() => _currentIndex = 2);
+        setState(() => _currentIndex = 2);
         _navigateTo(const CreatePostScreen());
         break;
       case 3:
@@ -263,7 +262,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(32),
                     child: Text(
                       'No posts yet',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+                      style: TextStyle(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
                     ),
                   ),
                 )
@@ -317,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () => _navigateTo(const ProfilePage()),
           child: CircleAvatar(
             radius: 24,
-            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
+            backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.12),
             backgroundImage: _currentUser?.profilePictureUrl != null
                 ? NetworkImage(_currentUser!.profilePictureUrl!)
                 : null,
@@ -345,13 +345,13 @@ class _HomeScreenState extends State<HomeScreen> {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _searchFocused ? amber : Colors.transparent,
+          color: theme.colorScheme.outline.withValues(alpha: 0.3),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
             color: _searchFocused
-                ? amber.withValues(alpha: 0.18)
+                ? Colors.amber.withValues(alpha: 0.18)
                 : Colors.black.withValues(alpha: 0.05),
             blurRadius: _searchFocused ? 18 : 10,
             offset: const Offset(0, 2),
@@ -365,7 +365,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(
               Icons.search,
               key: ValueKey(_searchFocused),
-              color: _searchFocused ? amber : onSurface.withValues(alpha: 0.4),
+              color: _searchFocused
+                  ? Colors.amber
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.4),
               size: 20,
             ),
           ),
@@ -374,10 +376,12 @@ class _HomeScreenState extends State<HomeScreen> {
             child: TextField(
               focusNode: _searchFocus,
               controller: _searchController,
-              style: TextStyle(color: onSurface),
+              style: TextStyle(color: theme.colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: 'Search opportunities, events, people...',
-                hintStyle: TextStyle(color: onSurface.withValues(alpha: 0.4), fontSize: 13),
+                hintStyle: TextStyle(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                    fontSize: 13),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 14),
               ),
@@ -387,10 +391,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     _posts = _allPosts;
                   } else {
                     _posts = _allPosts
-                        .where(
-                          (p) =>
-                              p.title.toLowerCase().contains(val.toLowerCase()),
-                        )
+                        .where((p) =>
+                            p.title.toLowerCase().contains(val.toLowerCase()))
                         .toList();
                   }
                 });
@@ -407,7 +409,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: AnimatedOpacity(
                 opacity: _searchController.text.isNotEmpty ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 150),
-                child: Icon(Icons.close_rounded, color: onSurface.withValues(alpha: 0.4), size: 18),
+                child: Icon(Icons.close_rounded,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                    size: 18),
               ),
             ),
         ],
@@ -452,8 +456,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontSize: 11,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     color: isSelected
-                        ? Theme.of(context).colorScheme.onSurface
-                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                        ? theme.colorScheme.onSurface
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -474,7 +478,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         GestureDetector(
@@ -512,7 +516,6 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20),
           child: Stack(
             children: [
-              // Background image
               Positioned.fill(
                 child: _buildImage(
                   post.coverImageUrl,
@@ -520,7 +523,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   placeholderColor: const Color(0xFF1A2B3C),
                 ),
               ),
-              // Gradient overlay
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
@@ -535,7 +537,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              // Content
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -623,7 +624,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () => _navigateTo(EventDetailScreen(post: post)),
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -661,7 +662,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
-                              color: Theme.of(context).colorScheme.onSurface,
+                              color: theme.colorScheme.onSurface,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -680,14 +681,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ? 'Apply by ${_formatDate(post.deadline)}'
                           : _formatDate(post.startTime),
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
                         fontSize: 12,
                       ),
                     ),
                     Text(
                       post.location,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                         fontSize: 12,
                       ),
                     ),
@@ -721,7 +722,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomNav() {
-    final navBg = Theme.of(context).colorScheme.surface;
+    final theme = Theme.of(context);
+    final navBg = theme.colorScheme.surface;
+
     return Container(
       decoration: BoxDecoration(
         color: navBg,
@@ -738,9 +741,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onBottomNavTap,
-        backgroundColor: navBg,
-        selectedItemColor: const Color(0xFFF5A623),
-        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
         backgroundColor: theme.colorScheme.surface,
         selectedItemColor: theme.colorScheme.primary,
         unselectedItemColor: theme.colorScheme.onSurface.withValues(alpha: 0.4),
@@ -777,6 +777,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }
-
