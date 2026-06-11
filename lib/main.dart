@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
       labelMedium: GoogleFonts.poppins(color: AppColors.lightText),
       labelSmall: GoogleFonts.poppins(color: AppColors.lightText),
     ),
-    textTheme: GoogleFonts.poppinsTextTheme(),
+    
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.lightBackground,
   );
@@ -131,7 +131,7 @@ class _MyAppState extends State<MyApp> {
       labelMedium: GoogleFonts.poppins(color: AppColors.darkText),
       labelSmall: GoogleFonts.poppins(color: AppColors.darkText),
     ),
-    textTheme: GoogleFonts.poppinsTextTheme(),
+    
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.darkBackground,
   );
