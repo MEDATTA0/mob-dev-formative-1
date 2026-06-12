@@ -33,13 +33,17 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     double? height,
     BoxFit fit = BoxFit.cover,
   }) {
+    final theme = Theme.of(context);
     if (url == null || url.isEmpty) {
       return Container(
         width: width,
         height: height,
-        color: Colors.grey.shade200,
-        child: Icon(Icons.image_outlined,
-            color: Colors.grey.shade400, size: 32),
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+        child: Icon(
+          Icons.image_outlined,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+          size: 32,
+        ),
       );
     }
 
@@ -50,10 +54,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         height: height,
         fit: fit,
         alignment: Alignment.topCenter,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           width: width,
           height: height,
-          color: Colors.grey.shade200,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
         ),
       );
     }
@@ -64,23 +68,26 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       height: height,
       fit: fit,
       alignment: Alignment.topCenter,
-      placeholder: (_, __) => Container(
+      placeholder: (_, _) => Container(
         width: width,
         height: height,
-        color: Colors.grey.shade100,
-        child: const Center(
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+        child: Center(
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: Color(0xFFF5A623),
+            color: theme.colorScheme.primary,
           ),
         ),
       ),
-      errorWidget: (_, __, ___) => Container(
+      errorWidget: (_, _, _) => Container(
         width: width,
         height: height,
-        color: Colors.grey.shade200,
-        child: Icon(Icons.image_outlined,
-            color: Colors.grey.shade400, size: 32),
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+        child: Icon(
+          Icons.image_outlined,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+          size: 32,
+        ),
       ),
     );
   }
@@ -88,8 +95,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Future<void> _setStatus(String status) async {
     setState(() => _userStatus = status);
 
-    final RSVPStatus rsvpStatus =
-        status == 'Going' ? RSVPStatus.going : RSVPStatus.interested;
+    final RSVPStatus rsvpStatus = status == 'Going'
+        ? RSVPStatus.going
+        : RSVPStatus.interested;
 
     int userId = 1;
     try {
@@ -97,27 +105,24 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (users.isNotEmpty) userId = users.first.getId();
     } catch (_) {}
 
-    await rsvpStore.add(RSVP(
-      userId: userId,
-      postId: widget.post.getId(),
-      status: rsvpStatus,
-    ));
+    await rsvpStore.add(
+      RSVP(userId: userId, postId: widget.post.getId(), status: rsvpStatus),
+    );
 
     if (!mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => MyRsvpsScreen(initialTab: status),
-      ),
+      MaterialPageRoute(builder: (_) => MyRsvpsScreen(initialTab: status)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final post = widget.post;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
           Expanded(
@@ -135,8 +140,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         const SizedBox(height: 14),
                         Text(
                           post.title,
-                          style: const TextStyle(
-                            color: Color(0xFF0F1B2D),
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurface,
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                             height: 1.2,
@@ -160,7 +165,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         Text(
                           post.description,
                           style: TextStyle(
-                            color: Colors.grey.shade600,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                             fontSize: 14,
                             height: 1.7,
                           ),
@@ -182,6 +189,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildHero() {
+    final theme = Theme.of(context);
     return Stack(
       children: [
         _buildImage(
@@ -196,11 +204,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           right: 0,
           child: Container(
             height: 60,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [Color(0xFFF8F9FB), Colors.transparent],
+                colors: [theme.scaffoldBackgroundColor, Colors.transparent],
               ),
             ),
           ),
@@ -208,30 +216,33 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         // Top bar
         SafeArea(
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
+                    color: theme.colorScheme.surface.withValues(alpha: 0.85),
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back,
-                        color: Color(0xFF0F1B2D)),
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: theme.colorScheme.onSurface,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
+                    color: theme.colorScheme.surface.withValues(alpha: 0.85),
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.sync_alt,
-                        color: Color(0xFF0F1B2D)),
+                    icon: Icon(
+                      Icons.sync_alt,
+                      color: theme.colorScheme.onSurface,
+                    ),
                     onPressed: () {},
                   ),
                 ),
@@ -244,38 +255,40 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildTags(Post post) {
-    final tagsToShow =
-        post.tags.isNotEmpty ? post.tags : [post.category];
+    final theme = Theme.of(context);
+    final tagsToShow = post.tags.isNotEmpty ? post.tags : [post.category];
 
     return Wrap(
       spacing: 8,
       children: tagsToShow
-          .map((tag) => Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5A623).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+          .map(
+            (tag) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                tag,
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
-                child: Text(
-                  tag,
-                  style: const TextStyle(
-                    color: Color(0xFFF5A623),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ))
+              ),
+            ),
+          )
           .toList(),
     );
   }
 
   Widget _buildInfoRow(IconData icon, String line1, String line2) {
+    final theme = Theme.of(context);
     if (line1.isEmpty) return const SizedBox.shrink();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: const Color(0xFFF5A623), size: 18),
+        Icon(icon, color: theme.colorScheme.primary, size: 18),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
@@ -283,8 +296,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             children: [
               Text(
                 line1,
-                style: const TextStyle(
-                  color: Color(0xFF0F1B2D),
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -293,7 +306,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 Text(
                   line2,
                   style: TextStyle(
-                      color: Colors.grey.shade500, fontSize: 13),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontSize: 13,
+                  ),
                 ),
             ],
           ),
@@ -303,6 +318,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildAttendees() {
+    final theme = Theme.of(context);
     final avatarColors = [
       const Color(0xFFE8A87C),
       const Color(0xFF85C1E9),
@@ -315,8 +331,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       future: rsvpStore.findByPostId(postId),
       builder: (context, snap) {
         final allRsvps = snap.data ?? [];
-        final goingCount =
-            allRsvps.where((r) => r.status == RSVPStatus.going).length;
+        final goingCount = allRsvps
+            .where((r) => r.status == RSVPStatus.going)
+            .length;
         final interestedCount = allRsvps
             .where((r) => r.status == RSVPStatus.interested)
             .length;
@@ -335,13 +352,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                            color: avatarColors[i], width: 2),
+                          color: theme.scaffoldBackgroundColor,
+                          width: 2,
+                        ),
                       ),
                       child: CircleAvatar(
                         radius: 14,
                         backgroundColor: avatarColors[i],
-                        child: const Icon(Icons.person,
-                            color: Colors.white, size: 14),
+                        child: const Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -354,8 +376,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 children: [
                   TextSpan(
                     text: '$goingCount going',
-                    style: const TextStyle(
-                      color: Color(0xFF0F1B2D),
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -363,7 +385,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   TextSpan(
                     text: '   $interestedCount interested',
                     style: TextStyle(
-                        color: Colors.grey.shade500, fontSize: 13),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),
@@ -375,13 +399,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildActions() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 36),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: theme.brightness == Brightness.dark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -397,8 +424,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               onPressed: () => _setStatus('Going'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _userStatus == 'Going'
-                    ? const Color(0xFF2A9D6F)
-                    : const Color(0xFFF5A623),
+                    ? theme.colorScheme.secondary
+                    : theme.colorScheme.primary,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32),
@@ -424,8 +451,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               style: OutlinedButton.styleFrom(
                 side: BorderSide(
                   color: _userStatus == 'Interested'
-                      ? const Color(0xFFF5A623)
-                      : Colors.grey.shade300,
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.2),
                   width: 1.5,
                 ),
                 shape: RoundedRectangleBorder(
@@ -433,13 +460,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 ),
               ),
               child: Text(
-                _userStatus == 'Interested'
-                    ? 'Interested ✓'
-                    : 'Interested',
+                _userStatus == 'Interested' ? 'Interested ✓' : 'Interested',
                 style: TextStyle(
                   color: _userStatus == 'Interested'
-                      ? const Color(0xFFF5A623)
-                      : const Color(0xFF0F1B2D),
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                   fontSize: 17,
                 ),

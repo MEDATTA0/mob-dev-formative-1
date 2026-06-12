@@ -1,38 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:assignment1/constants.dart';
+import 'package:assignment1/models/index.dart';
+import 'settings_page.dart';
+import 'help_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
-  // ALU Theme Colors
-  static const Color primaryBg = Color(0xFF050A1F);
-  static const Color cardBg = Color(0xFF1A243B);
-  static const Color accentGold = Color(0xFFF4A300);
-  static const Color textWhite = Colors.white;
-  static const Color secondaryText = Color(0xFFB0B8C4);
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  User? currentUser;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final loggedInEmail = AuthSession().loggedInEmail;
+    if (loggedInEmail == null) {
+      setState(() => isLoading = false);
+      return;
+    }
+    final users = await userStore.findAll();
+    final user = users.firstWhere(
+      (u) => u.email.toLowerCase() == loggedInEmail.toLowerCase(),
+      orElse: () => users.first,
+    );
+    setState(() {
+      currentUser = user;
+      isLoading = false;
+    });
+  }
+
+  void _navigateToPage(BuildContext context, Widget page) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+
+          final tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: Curves.easeInOut));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
-      backgroundColor: primaryBg,
+      backgroundColor: theme.scaffoldBackgroundColor,
 
       appBar: AppBar(
-        backgroundColor: primaryBg,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Profile",
           style: TextStyle(
-            color: textWhite,
+            color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.settings,
-              color: accentGold,
-            ),
+            onPressed: () {
+              _navigateToPage(context, const SettingsPage());
+            },
+            icon: Icon(Icons.settings, color: theme.colorScheme.primary),
           ),
         ],
       ),
@@ -42,41 +99,51 @@ class ProfilePage extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
 
-            // Profile Picture
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: accentGold,
-                  width: 3,
-                ),
+                border: Border.all(color: theme.colorScheme.primary, width: 3),
               ),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 55,
-                backgroundImage: NetworkImage(
-                  "https://picsum.photos/200",
+                backgroundImage:
+                    currentUser?.profilePictureUrl != null
+                        ? NetworkImage(
+                            currentUser!.profilePictureUrl!,
+                          )
+                        : null,
+                backgroundColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.15,
                 ),
+                child:
+                    currentUser?.profilePictureUrl == null
+                        ? const Icon(
+                            Icons.person,
+                            size: 55,
+                          )
+                        : null,
+                
               ),
             ),
 
             const SizedBox(height: 15),
 
-            const Text(
-              "John Doe",
+            Text(
+              currentUser?.fullName ?? "Unknown User",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: textWhite,
+                color: theme.colorScheme.onSurface,
               ),
             ),
 
             const SizedBox(height: 5),
 
-            const Text(
-              "Kigali Campus",
+            Text(
+              currentUser?.campusName ?? currentUser?.campusId ?? "Campus",
               style: TextStyle(
-                color: secondaryText,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 16,
               ),
             ),
@@ -85,17 +152,17 @@ class ProfilePage extends StatelessWidget {
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
+              children: [
                 ProfileStat(
-                  number: "23",
+                  number: "${currentUser?.eventsCount ?? 0}",
                   label: "Events",
                 ),
                 ProfileStat(
-                  number: "5",
+                  number: "${currentUser?.communitiesCount ?? 0}",
                   label: "Communities",
                 ),
                 ProfileStat(
-                  number: "87",
+                  number: "${currentUser?.connectionsCount ?? 0}",
                   label: "Connections",
                 ),
               ],
@@ -106,51 +173,67 @@ class ProfilePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Card(
-                color: cardBg,
+                color: theme.colorScheme.surface,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
-                  children: const [
-                    ProfileMenuTile(
+                  children: [
+                    const ProfileMenuTile(
                       icon: Icons.article_outlined,
                       title: "My Posts",
                     ),
 
-                    Divider(color: Colors.white12, height: 1),
+                    const Divider(height: 1),
 
-                    ProfileMenuTile(
+                    const ProfileMenuTile(
                       icon: Icons.bookmark_outline,
                       title: "Saved",
                     ),
 
-                    Divider(color: Colors.white12, height: 1),
+                    const Divider(height: 1),
 
-                    ProfileMenuTile(
+                    const ProfileMenuTile(
                       icon: Icons.notifications_none,
                       title: "Notifications",
                     ),
 
-                    Divider(color: Colors.white12, height: 1),
+                    const Divider(height: 1),
 
                     ProfileMenuTile(
                       icon: Icons.settings_outlined,
                       title: "Account Settings",
+                      onTap: () {
+                        _navigateToPage(context, const SettingsPage());
+                      },
+                    
+                      
                     ),
 
-                    Divider(color: Colors.white12, height: 1),
+                    const Divider(height: 1),
 
                     ProfileMenuTile(
                       icon: Icons.help_outline,
                       title: "Help & Support",
+                      onTap: () {
+                        _navigateToPage(context, const HelpPage());
+                      },
                     ),
 
-                    Divider(color: Colors.white12, height: 1),
+                    const Divider(height: 1),
 
                     ProfileMenuTile(
                       icon: Icons.logout,
                       title: "Logout",
+                      onTap: () {
+                        AuthSession().loggedInEmail = null;
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/',
+                          (route) => false,
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -169,29 +252,27 @@ class ProfileStat extends StatelessWidget {
   final String number;
   final String label;
 
-  const ProfileStat({
-    super.key,
-    required this.number,
-    required this.label,
-  });
+  const ProfileStat({super.key, required this.number, required this.label});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       children: [
         Text(
           number,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: ProfilePage.accentGold,
+            color: theme.colorScheme.primary,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(
-            color: ProfilePage.secondaryText,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
       ],
@@ -202,36 +283,28 @@ class ProfileStat extends StatelessWidget {
 class ProfileMenuTile extends StatelessWidget {
   final IconData icon;
   final String title;
+  final VoidCallback? onTap;
 
   const ProfileMenuTile({
     super.key,
     required this.icon,
     required this.title,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 4,
-      ),
-      leading: Icon(
-        icon,
-        color: ProfilePage.accentGold,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      leading: Icon(icon, color: theme.colorScheme.primary),
       title: Text(
         title,
-        style: const TextStyle(
-          color: ProfilePage.textWhite,
-          fontSize: 16,
-        ),
+        style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
       ),
-      trailing: const Icon(
-        Icons.chevron_right,
-        color: ProfilePage.accentGold,
-      ),
-      onTap: () {},
+      trailing: Icon(Icons.chevron_right, color: theme.colorScheme.primary),
+      onTap: onTap,
     );
   }
 }

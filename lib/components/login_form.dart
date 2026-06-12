@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/components/custom_text_field.dart';
 import 'package:assignment1/components/custom_button.dart';
@@ -51,6 +52,7 @@ class _LoginFormState extends State<LoginForm> {
       );
 
       if (user.password == password) {
+        AuthSession().loggedInEmail = user.email;
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -176,4 +178,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-

@@ -1,10 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:assignment1/constants.dart';
 import 'package:assignment1/models/index.dart';
 import 'package:assignment1/screens/event_detail.dart';
 import 'package:assignment1/screens/rsvp.dart';
+import 'package:assignment1/screens/chats_screen.dart';
 import 'package:assignment1/screens/profile_page.dart';
+import 'package:assignment1/screens/communities.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:intl/intl.dart';
+import 'package:assignment1/screens/create_post.dart';
+import 'package:assignment1/screens/notifications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,19 +25,72 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Post> _allPosts = [];
   List<Post> _posts = [];
   User? _currentUser;
+  final FocusNode _searchFocus = FocusNode();
+  final TextEditingController _searchController = TextEditingController();
+  bool _searchFocused = false;
+  int _unreadNotifCount = 0;
 
   final List<Map<String, dynamic>> _categories = [
-    {'label': 'All', 'icon': Icons.grid_view_rounded, 'color': const Color(0xFFF5A623)},
-    {'label': 'Events', 'icon': Icons.calendar_today_outlined, 'color': const Color(0xFF6C63FF)},
-    {'label': 'Opportunities', 'icon': Icons.card_giftcard_outlined, 'color': const Color(0xFF2A9D6F)},
-    {'label': 'Clubs', 'icon': Icons.groups_outlined, 'color': const Color(0xFF2A9D6F)},
-    {'label': 'Academics', 'icon': Icons.school_outlined, 'color': const Color(0xFF3B82F6)},
+    {
+      'label': 'All',
+      'icon': Icons.grid_view_rounded,
+      'color': const Color(0xFFF5A623),
+    },
+    {
+      'label': 'Events',
+      'icon': Icons.calendar_today_outlined,
+      'color': const Color(0xFF6C63FF),
+    },
+    {
+      'label': 'Opportunities',
+      'icon': Icons.card_giftcard_outlined,
+      'color': const Color(0xFF2A9D6F),
+    },
+    {
+      'label': 'Clubs',
+      'icon': Icons.groups_outlined,
+      'color': const Color(0xFF2A9D6F),
+    },
+    {
+      'label': 'Academics',
+      'icon': Icons.school_outlined,
+      'color': const Color(0xFF3B82F6),
+    },
   ];
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _loadUnreadCount();
+    _searchFocus.addListener(() {
+      setState(() => _searchFocused = _searchFocus.hasFocus);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocus.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadUnreadCount() async {
+    final allUsers = await userStore.findAll();
+    final loggedInEmail = AuthSession().loggedInEmail;
+    final currentUser = loggedInEmail != null
+        ? allUsers.firstWhere(
+            (u) => u.email.toLowerCase() == loggedInEmail.toLowerCase(),
+            orElse: () => allUsers.first,
+          )
+        : (allUsers.isNotEmpty ? allUsers.first : null);
+    if (currentUser?.id == null || !mounted) return;
+    final notifs = await notificationStore.findByUserId(currentUser!.id!);
+    if (mounted) {
+      setState(() {
+        _unreadNotifCount = notifs.where((n) => !n.isRead).length;
+      });
+    }
   }
 
   Future<void> _loadData() async {
@@ -41,12 +100,19 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _allPosts = allPosts.where((p) => p.isPublished).toList();
       _posts = _allPosts;
-      _currentUser = allUsers.isNotEmpty ? allUsers.first : null;
+      final loggedInEmail = AuthSession().loggedInEmail;
+      _currentUser = loggedInEmail != null
+          ? allUsers.firstWhere(
+              (u) => u.email.toLowerCase() == loggedInEmail.toLowerCase(),
+              orElse: () => allUsers.first,
+            )
+          : (allUsers.isNotEmpty ? allUsers.first : null);
     });
   }
 
-  void _navigateTo(Widget screen) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  Future<dynamic> _navigateTo(Widget screen) {
+    _searchFocus.unfocus();
+    return Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
   List<Post> get _filteredPosts {
@@ -91,34 +157,51 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       case 1:
         setState(() => _currentIndex = 1);
+        _navigateTo(const CommunitiesScreen());
         break;
       case 2:
+        setState(() => _currentIndex = 2);
+        _navigateTo(const CreatePostScreen()).then((result) {
+          if (result == true) {
+            _loadData(); // Refresh data when post is created
+          }
+        });
         break;
       case 3:
         setState(() => _currentIndex = 3);
+        _navigateTo(const MyRsvpsScreen());
         break;
       case 4:
         setState(() => _currentIndex = 4);
-        _navigateTo(const ProfilePage());
+        _navigateTo(const ChatsScreen());
         break;
     }
   }
 
-  // ── Image helper ──────────────────────────────────────────
   Widget _buildImage(
     String? url, {
     double? width,
     double? height,
     BoxFit fit = BoxFit.cover,
-    Color placeholderColor = const Color(0xFFE8EAF0),
+    Color? placeholderColor,
   }) {
+    final theme = Theme.of(context);
+    final fallbackPlaceholderColor =
+        placeholderColor ??
+        (theme.brightness == Brightness.dark
+            ? const Color(0xFF1E293B)
+            : const Color(0xFFE8EAF0));
+
     if (url == null || url.isEmpty) {
       return Container(
         width: width,
         height: height,
-        color: placeholderColor,
-        child: Icon(Icons.image_outlined,
-            color: Colors.grey.shade400, size: 32),
+        color: fallbackPlaceholderColor,
+        child: Icon(
+          Icons.image_outlined,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+          size: 32,
+        ),
       );
     }
 
@@ -129,12 +212,35 @@ class _HomeScreenState extends State<HomeScreen> {
         height: height,
         fit: fit,
         alignment: Alignment.topCenter,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           width: width,
           height: height,
-          color: placeholderColor,
-          child: Icon(Icons.image_outlined,
-              color: Colors.grey.shade400, size: 32),
+          color: fallbackPlaceholderColor,
+          child: Icon(
+            Icons.image_outlined,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            size: 32,
+          ),
+        ),
+      );
+    }
+
+    if (!url.startsWith('http')) {
+      return Image.file(
+        File(url),
+        width: width,
+        height: height,
+        fit: fit,
+        alignment: Alignment.topCenter,
+        errorBuilder: (_, _, _) => Container(
+          width: width,
+          height: height,
+          color: fallbackPlaceholderColor,
+          child: Icon(
+            Icons.image_outlined,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            size: 32,
+          ),
         ),
       );
     }
@@ -145,34 +251,37 @@ class _HomeScreenState extends State<HomeScreen> {
       height: height,
       fit: fit,
       alignment: Alignment.topCenter,
-      placeholder: (_, __) => Container(
+      placeholder: (_, _) => Container(
         width: width,
         height: height,
-        color: placeholderColor,
-        child: const Center(
+        color: fallbackPlaceholderColor,
+        child: Center(
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: Color(0xFFF5A623),
+            color: theme.colorScheme.primary,
           ),
         ),
       ),
-      errorWidget: (_, __, ___) => Container(
+      errorWidget: (_, _, _) => Container(
         width: width,
         height: height,
-        color: placeholderColor,
-        child: Icon(Icons.image_outlined,
-            color: Colors.grey.shade400, size: 32),
+        color: fallbackPlaceholderColor,
+        child: Icon(
+          Icons.image_outlined,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+          size: 32,
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final firstName =
-        _currentUser?.fullName.split(' ').first ?? 'there';
+    final theme = Theme.of(context);
+    final firstName = _currentUser?.fullName.split(' ').first ?? 'there';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -199,15 +308,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(32),
                     child: Text(
                       'No posts yet',
-                      style: TextStyle(color: Colors.grey.shade400),
+                      style: TextStyle(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
                     ),
                   ),
                 )
               else
-                ..._latestPosts.map((post) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildOpportunityCard(post),
-                    )),
+                ..._latestPosts.map(
+                  (post) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildOpportunityCard(post),
+                  ),
+                ),
               const SizedBox(height: 80),
             ],
           ),
@@ -218,6 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader(String firstName) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -228,10 +341,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   'Hi, $firstName! ',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F1B2D),
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const Text('👋', style: TextStyle(fontSize: 22)),
@@ -239,15 +352,65 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Text(
               "What's happening today?",
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              style: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ],
         ),
-        GestureDetector(
+        Row(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    await _navigateTo(const NotificationsScreen());
+                    _loadUnreadCount();
+                  },
+                  icon: Icon(
+                    Icons.notifications_outlined,
+                    color: theme.colorScheme.onSurface,
+                    size: 26,
+                  ),
+                ),
+                if (_unreadNotifCount > 0)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.error,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: theme.scaffoldBackgroundColor,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _unreadNotifCount > 9
+                              ? '9+'
+                              : '$_unreadNotifCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            GestureDetector(
           onTap: () => _navigateTo(const ProfilePage()),
           child: CircleAvatar(
             radius: 24,
-            backgroundColor: Colors.grey.shade200,
+            backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.12),
             backgroundImage: _currentUser?.profilePictureUrl != null
                 ? NetworkImage(_currentUser!.profilePictureUrl!)
                 : null,
@@ -263,34 +426,57 @@ class _HomeScreenState extends State<HomeScreen> {
                 : null,
           ),
         ),
+          ],
+        ),
       ],
     );
   }
 
   Widget _buildSearchBar() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: _searchFocused
+                ? Colors.amber.withValues(alpha: 0.18)
+                : Colors.black.withValues(alpha: 0.05),
+            blurRadius: _searchFocused ? 18 : 10,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
-          Icon(Icons.search, color: Colors.grey.shade400, size: 20),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Icon(
+              Icons.search,
+              key: ValueKey(_searchFocused),
+              color: _searchFocused
+                  ? Colors.amber
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+              size: 20,
+            ),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
+              focusNode: _searchFocus,
+              controller: _searchController,
+              style: TextStyle(color: theme.colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: 'Search opportunities, events, people...',
-                hintStyle:
-                    TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                hintStyle: TextStyle(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                    fontSize: 13),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 14),
               ),
@@ -300,33 +486,47 @@ class _HomeScreenState extends State<HomeScreen> {
                     _posts = _allPosts;
                   } else {
                     _posts = _allPosts
-                        .where((p) => p.title
-                            .toLowerCase()
-                            .contains(val.toLowerCase()))
+                        .where((p) =>
+                            p.title.toLowerCase().contains(val.toLowerCase()))
                         .toList();
                   }
                 });
               },
             ),
           ),
+          if (_searchController.text.isNotEmpty)
+            GestureDetector(
+              onTap: () {
+                _searchController.clear();
+                setState(() => _posts = _allPosts);
+                _searchFocus.unfocus();
+              },
+              child: AnimatedOpacity(
+                opacity: _searchController.text.isNotEmpty ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 150),
+                child: Icon(Icons.close_rounded,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                    size: 18),
+              ),
+            ),
         ],
       ),
     );
   }
 
   Widget _buildCategories() {
+    final theme = Theme.of(context);
     return SizedBox(
       height: 80,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
+        separatorBuilder: (_, _) => const SizedBox(width: 16),
         itemBuilder: (context, i) {
           final cat = _categories[i];
           final isSelected = _selectedCategory == cat['label'];
           return GestureDetector(
-            onTap: () =>
-                setState(() => _selectedCategory = cat['label']),
+            onTap: () => setState(() => _selectedCategory = cat['label']),
             child: Column(
               children: [
                 Container(
@@ -335,14 +535,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? (cat['color'] as Color)
-                        : (cat['color'] as Color).withOpacity(0.12),
+                        : (cat['color'] as Color).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     cat['icon'] as IconData,
-                    color: isSelected
-                        ? Colors.white
-                        : cat['color'] as Color,
+                    color: isSelected ? Colors.white : cat['color'] as Color,
                     size: 24,
                   ),
                 ),
@@ -351,12 +549,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   cat['label'],
                   style: TextStyle(
                     fontSize: 11,
-                    fontWeight: isSelected
-                        ? FontWeight.w700
-                        : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     color: isSelected
-                        ? const Color(0xFF0F1B2D)
-                        : Colors.grey.shade500,
+                        ? theme.colorScheme.onSurface
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -368,24 +564,25 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSectionHeader(String title) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0F1B2D),
+            color: theme.colorScheme.onSurface,
           ),
         ),
         GestureDetector(
           onTap: () => _navigateTo(const MyRsvpsScreen()),
-          child: const Text(
+          child: Text(
             'See all',
             style: TextStyle(
               fontSize: 13,
-              color: Color(0xFFF5A623),
+              color: theme.colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -404,7 +601,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha: 0.12),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -414,7 +611,6 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20),
           child: Stack(
             children: [
-              // Background image
               Positioned.fill(
                 child: _buildImage(
                   post.coverImageUrl,
@@ -422,7 +618,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   placeholderColor: const Color(0xFF1A2B3C),
                 ),
               ),
-              // Gradient overlay
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
@@ -430,14 +625,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       begin: Alignment.centerRight,
                       end: Alignment.centerLeft,
                       colors: [
-                        Colors.black.withOpacity(0.1),
-                        Colors.black.withOpacity(0.75),
+                        Colors.black.withValues(alpha: 0.1),
+                        Colors.black.withValues(alpha: 0.75),
                       ],
                     ),
                   ),
                 ),
               ),
-              // Content
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -447,17 +641,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       post.category,
                       style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500),
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       post.title,
                       style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -465,16 +661,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       '${_formatDate(post.startTime)} • ${post.location}',
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.75),
-                          fontSize: 12),
+                        color: Colors.white.withValues(alpha: 0.75),
+                        fontSize: 12,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       post.description,
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
-                          fontSize: 12,
-                          height: 1.4),
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 12,
+                        height: 1.4,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -486,7 +684,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         backgroundColor: const Color(0xFFF5A623),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 22, vertical: 10),
+                          horizontal: 22,
+                          vertical: 10,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -494,9 +694,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: const Text(
                         'View details',
                         style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ],
@@ -510,6 +711,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildOpportunityCard(Post post) {
+    final theme = Theme.of(context);
     final color = _tagColor(post);
     final tag = _tagLabel(post);
 
@@ -517,11 +719,13 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () => _navigateTo(EventDetailScreen(post: post)),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: theme.brightness == Brightness.dark
+                  ? Colors.black.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -534,13 +738,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 topLeft: Radius.circular(14),
                 bottomLeft: Radius.circular(14),
               ),
-              child: _buildImage(post.coverImageUrl,
-                  width: 80, height: 80),
+              child: _buildImage(post.coverImageUrl, width: 80, height: 80),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 12),
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -549,17 +754,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: Text(
                             post.title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
-                              color: Color(0xFF0F1B2D),
+                              color: theme.colorScheme.onSurface,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Icon(Icons.chevron_right,
-                            color: Colors.grey, size: 18),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey,
+                          size: 18,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 3),
@@ -568,19 +776,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           ? 'Apply by ${_formatDate(post.deadline)}'
                           : _formatDate(post.startTime),
                       style: TextStyle(
-                          color: Colors.grey.shade500, fontSize: 12),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+                        fontSize: 12,
+                      ),
                     ),
                     Text(
                       post.location,
                       style: TextStyle(
-                          color: Colors.grey.shade400, fontSize: 12),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                        fontSize: 12,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 3),
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.12),
+                        color: color.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -603,12 +817,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomNav() {
+    final theme = Theme.of(context);
+    final navBg = theme.colorScheme.surface;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: navBg,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: theme.brightness == Brightness.dark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -617,34 +836,38 @@ class _HomeScreenState extends State<HomeScreen> {
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onBottomNavTap,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFFF5A623),
-        unselectedItemColor: Colors.grey.shade400,
+        backgroundColor: theme.colorScheme.surface,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.colorScheme.onSurface.withValues(alpha: 0.4),
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle:
-            const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+        selectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(fontSize: 11),
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home'),
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.search), label: 'Explore'),
+            icon: Icon(Icons.groups_outlined),
+            activeIcon: Icon(Icons.groups),
+            label: 'Communities',
+          ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle,
-                size: 40, color: Color(0xFFF5A623)),
+            icon: Icon(Icons.add_circle, size: 36, color: Color(0xFFF5A623)),
             label: '',
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble_outline),
-              activeIcon: Icon(Icons.chat_bubble),
-              label: 'Chats'),
+            icon: Icon(Icons.event_available_outlined),
+            activeIcon: Icon(Icons.event_available),
+            label: 'RSVPs',
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile'),
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Chats',
+          ),
         ],
       ),
     );
